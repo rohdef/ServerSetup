@@ -8,12 +8,16 @@ class AutoInstall:
         self._install = yamlData["autoinstall"]
         self._defaultIdentity = DefaultIdentity(self._install)
         self._identity = Identity(self._install)
+        self._packages = Packages(self._install)
 
     def defaultIdentity(self):
         return self._defaultIdentity
 
     def identity(self):
         return self._identity
+
+    def packages(self):
+        return self._packages
 
 
 class DefaultIdentity:
@@ -51,3 +55,10 @@ class Identity:
 
     def authorizedKeys(self):
         return self._authorizedKeys
+
+class Packages:
+    def __init__(self, yamlData):
+        self._packages = yamlData["packages"]
+
+    def packages(self):
+        return self._packages
