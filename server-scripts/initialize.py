@@ -2,6 +2,7 @@
 
 from configuration.HostConfiguration import HostConfiguration
 import logging
+import logging.config
 import os
 import pwd
 import sys
@@ -13,6 +14,8 @@ class BlankServer(System):
         self._configuration = configuration
         self._identity = configuration.autoInstall().defaultIdentity()
 
+        self._logger = logging.getLogger(__name__)
+
     def initServer(self, identity):
         self.changeHostName(identity.hostname())
         self.createNewUser(
@@ -21,33 +24,34 @@ class BlankServer(System):
             identity.password()
         )
         self.copySshId(identity.username(), identity.authorizedKeys())
+        self.copyInitScripts(identity.username())
 
     def changeHostName(self, hostname):
-        logging.info(f"Changing hostname to: {hostname}")
+        self._logger.info(f"Changing hostname to: {hostname}")
         self._run(f"hostnamectl set-hostname \"{hostname}\"")
-        logging.info("\tHostname successfully updated")
+        self._logger.info("\tHostname successfully updated")
 
     def createNewUser(self, username, realName, password):
-        logging.info(f"Updating user details")
+        self._logger.info(f"Updating user details")
         
-        logging.info(f"\tEnsuring user with username: \"{username}\"")
+        self._logger.info(f"\tEnsuring user with username: \"{username}\"")
         try:
             pwd.getpwnam(username)
-            logging.info(f"\tUser is already present")
+            self._logger.info(f"\tUser is already present")
         except KeyError:
-            logging.info(f"\tCreating user with username: \"{username}\"")
+            self._logger.info(f"\tCreating user with username: \"{username}\"")
             self._run(f"useradd -m -d /home/{username} -s /bin/bash {username}")
         
-        logging.info(f"\tUpdating password for user: \"{username}\"")
+        self._logger.info(f"\tUpdating password for user: \"{username}\"")
         self._run(f"bash -c 'echo \"{username}:{password}\" | chpasswd'")
 
-        logging.info(f"\tUpdating real name to \"{realName}\" for user \"{username}\"")
+        self._logger.info(f"\tUpdating real name to \"{realName}\" for user \"{username}\"")
         self._run(f"usermod -c \"{realName}\" {username}")
 
-        logging.info(f"\tUpdating to have sudo rights for user \"{username}\"")
+        self._logger.info(f"\tUpdating to have sudo rights for user \"{username}\"")
         self._run(f"usermod -aG sudo {username}")
 
-        logging.info(f"\tUser details updated successfully")
+        self._logger.info(f"\tUser details updated successfully")
 
     def copySshId(self, username, rsaKeys):
         homeDirResult = self._runCapture(f"echo ~{username}")
@@ -63,14 +67,24 @@ class BlankServer(System):
         with open(authorizedKeysPath, "w") as keys:
             keys.write(rsaKeys)
 
+    def copyInitScripts(self, username):
+        homeDirResult = self._runCapture(f"echo ~{username}")
+        homeDir = homeDirResult.stdout.decode().strip()
+
+        currentPath = self._configuration.currentPath()
+        self._run(f"rm -rf \"{homeDir}/do-configure\"")
+        self._run(f"cp -r \"{currentPath}\" \"{homeDir}\"")
+        self._run(f"chown -R {username}:{username} \"{homeDir}/do-configure\"")
+
 if __name__ == "__main__":
     currentPath = os.path.dirname(__file__)
+    logging.config.fileConfig(f"{currentPath}/logging.conf")
+    logger = logging.getLogger(__name__)
+
     configuration = HostConfiguration(sys.argv[1:], currentPath)
 
-    logging.basicConfig(level=configuration.logLevel())
-
-    logging.info("Initializing server")    
+    logger.info("Initializing server")
     server = BlankServer(configuration)
     server.initServer(configuration.autoInstall().identity())
 
-    logging.info("Done with intialization")
+    logger.info("Done with intialization")
