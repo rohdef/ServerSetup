@@ -16,7 +16,7 @@ if __name__ == "__main__":
 
     logger.info("Initializing server")
     from BlankServer import BlankServer
-    server = BlankServer(configuration)    
+    server = BlankServer(configuration)
     preparedServer = server.initServer()
 
     logger.info("Performing server setup")

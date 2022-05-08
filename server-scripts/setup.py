@@ -22,7 +22,9 @@ class PreparedServer(System):
         self._installBasePackages([])
 
     def _disableSnap(self):
-        pass
+        self._logger.info("Disabling snap package manager")
+        self._run("apt-get -y purge snapd")
+        self._run("rm -rf /snap /var/snap /var/lib/snapd")
 
     def _installBasePackages(self, packages):
         self._logger.info("Updating package lists")
