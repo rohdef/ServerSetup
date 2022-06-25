@@ -8,7 +8,7 @@ import sys
 
 from System import System
 
-class PreparedServer(System):
+class ProvisionedServer(System):
     def __init__(self, configuration):
         self._configuration = configuration
         self._autoInstall = self._configuration.autoInstall()
@@ -16,24 +16,7 @@ class PreparedServer(System):
         self._logger = logging.getLogger(__name__)
 
     def setup(self):
-        self._logger.info("Pretending to do setup")
-
-        self._disableSnap()
-        self._installBasePackages([])
-
-    def _disableSnap(self):
-        self._logger.info("Disabling snap package manager")
-        self._run("apt-get -y purge snapd")
-        self._run("rm -rf /snap /var/snap /var/lib/snapd")
-
-    def _installBasePackages(self, packages):
-        self._logger.info("Updating package lists")
-        self._run("apt-get update")
-
-        self._logger.info("Installing base packages")
-        packages = self._autoInstall.packages().packages()
-        installCommand = ["apt-get", "install", "-y"] +  packages
-        self._run(installCommand, False)
+        self._logger.info("Setting up server")
 
 
 if __name__ == "__main__":
@@ -44,7 +27,7 @@ if __name__ == "__main__":
     configuration = HostConfiguration(sys.argv[1:], currentPath)
 
     logger.info("Setting up server")
-    server = PreparedServer(configuration)
+    server = ProvisionedServer(configuration)
     server.setup()
 
     logger.info("Done with setup")

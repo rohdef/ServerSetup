@@ -9,6 +9,7 @@ class AutoInstall:
         self._defaultIdentity = DefaultIdentity(self._install)
         self._identity = Identity(self._install)
         self._packages = Packages(self._install)
+        self._ssh = Ssh(self._install)
 
     def defaultIdentity(self):
         return self._defaultIdentity
@@ -18,6 +19,9 @@ class AutoInstall:
 
     def packages(self):
         return self._packages
+
+    def ssh(self):
+        return self._ssh
 
 
 class DefaultIdentity:
@@ -39,6 +43,7 @@ class Identity:
         self._realName = requireText(self._identity["realname"])
         self._username = requireText(self._identity["username"])
         self._password = requireText(self._identity["password"])
+        self._shell = requireText(self._identity["shell"])
         self._authorizedKeys = requireText(self._identity["authorized-keys"])
 
     def hostname(self):
@@ -53,6 +58,9 @@ class Identity:
     def password(self):
         return self._password
 
+    def shell(self):
+        return self._shell
+
     def authorizedKeys(self):
         return self._authorizedKeys
 
@@ -62,3 +70,11 @@ class Packages:
 
     def packages(self):
         return self._packages
+
+class Ssh:
+    def __init__(self, yamlData):
+        ssh = yamlData["ssh"]
+        self._allowPassword = ssh["allow-pw"]
+
+    def allowPassword(self):
+        return self._allowPassword

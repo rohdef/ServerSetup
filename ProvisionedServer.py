@@ -1,38 +1,35 @@
 import logging
 import socket
 import time
-
 from subprocess import run
-
-from ProvisionedServer import ProvisionedServer
 
 logger = logging.getLogger(__name__)
 
-class PreparedServer:
+class ProvisionedServer:
     def __init__(self, configuration):
         self._configuration = configuration
-        
+
         identity = configuration.autoInstall().identity()
         self._host = configuration.clientHost()
         self._username = identity.username()
         self._password = identity.password()
 
-    def provision(self):
+    def setup(self):
         logger.info("Waiting for SSH to be ready")
         self._awaitConnectionReady()
 
         logger.info("Executing setup scripts")
-        self._runSshCommand("~/do-configure/provision.sh")
+        self._runSshCommand("~/do-configure/setup.sh")
 
         self._reboot(self._username)
 
-        logger.info("Done initializing ready to perform actions on the server")
-        return ProvisionedServer(self._configuration)
+        logger.info("Server is ready to use")
+
 
     def _awaitConnectionReady(self):
         for x in range(60):
             logger.info(f"Testing for conntection, attemt: {x}")
-            
+
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 s.settimeout(1)
 
@@ -50,7 +47,7 @@ class PreparedServer:
         except:
             pass #expected, ssh will terminate connection
         time.sleep(1)
-    
+
     def _runSshCommand(self, command):
         run([
             "ssh",

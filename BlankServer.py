@@ -24,13 +24,13 @@ class BlankServer:
         self._prepareFiles("do-configure")
 
         logger.info("Copying data to server")
-        self._runSshCommand("export SUDO_ASKPASS=/home/ubuntu/do-configure/ask-pass-default.py; sudo --askpass rm -r /home/ubuntu/do-configure || true")
+        self._runSshCommand(f"export SUDO_ASKPASS=/home/{self._username}/do-configure/ask-pass-default.py; sudo --askpass rm -r /home/ubuntu/do-configure || true")
         self._copyFiles("do-configure")
 
         logger.info("Executing initialize scripts")
         self._runSshCommand("~/do-configure/initialize.sh")
 
-        self._reboot()
+        self._reboot(self._username)
 
         logger.info("Done initializing ready to perform actions on the server")
         return PreparedServer(self._configuration)
@@ -59,10 +59,10 @@ class BlankServer:
             f"{self._username}@{self._host}:~/"
         ], check=True)
 
-    def _reboot(self):
+    def _reboot(self, user):
         logger.info("Rebooting")
         try:
-            self._runSshCommand("export SUDO_ASKPASS=/home/ubuntu/do-configure/ask-pass-default.py; sudo --askpass shutdown -r now")
+            self._runSshCommand(f"export SUDO_ASKPASS=/home/{user}/do-configure/ask-pass-default.py; sudo --askpass shutdown -r now")
         except:
             pass #expected, ssh will terminate connection
         time.sleep(1)

@@ -1,6 +1,7 @@
 # Custom
 ## Configs are in yaml and can contain passwords (TODO on fix)
 *.yaml
+do-configure
 
 
 # Byte-compiled / optimized / DLL files

@@ -3,6 +3,7 @@
 import logging
 import logging.config
 import os
+import shutil
 import sys
 
 if __name__ == "__main__":
@@ -19,5 +20,10 @@ if __name__ == "__main__":
     server = BlankServer(configuration)
     preparedServer = server.initServer()
 
+    logger.info("Provisioning server")
+    provisionedServer = preparedServer.provision()
+
     logger.info("Performing server setup")
-    preparedServer.setupServer()
+    provisionedServer.setup()
+
+    shutil.rmtree("do-configure")
