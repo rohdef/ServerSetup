@@ -24,7 +24,7 @@ class BlankServer:
         self._prepareFiles("do-configure")
 
         logger.info("Copying data to server")
-        self._runSshCommand(f"export SUDO_ASKPASS=/home/{self._username}/do-configure/ask-pass-default.py; sudo --askpass rm -r /home/ubuntu/do-configure || true")
+        self._runSshCommand(f"export SUDO_ASKPASS=/home/{self._username}/do-configure/ask-pass-default.py; sudo --askpass rm -r /home/{self._username}/do-configure || true")
         self._copyFiles("do-configure")
 
         logger.info("Executing initialize scripts")

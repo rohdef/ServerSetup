@@ -15,13 +15,26 @@ if __name__ == "__main__":
     currentPath = os.path.dirname(__file__)
     configuration = MainConfiguration(sys.argv[1:], currentPath)
 
+
     logger.info("Initializing server")
     from BlankServer import BlankServer
+    # TODO blank-server should also update
     server = BlankServer(configuration)
-    preparedServer = server.initServer()
 
-    logger.info("Provisioning server")
-    provisionedServer = preparedServer.provision()
+    if False:
+        preparedServer = server.initServer()
+
+        logger.info("Provisioning server")
+        provisionedServer = preparedServer.provision()
+    else:
+        logger.info("Starting from provisioned")
+
+        from ProvisionedServer import ProvisionedServer
+        provisionedServer = ProvisionedServer(configuration)
+
+        server._prepareFiles("do-configure")
+        server._runSshCommand(f"export SUDO_ASKPASS=/home/rohdef-admin/do-configure/ask-pass-new.py; sudo --askpass rm -r /home/rohdef-admin/do-configure || true")
+        server._copyFiles("do-configure")
 
     logger.info("Performing server setup")
     provisionedServer.setup()

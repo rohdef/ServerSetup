@@ -10,6 +10,7 @@ class AutoInstall:
         self._identity = Identity(self._install)
         self._packages = Packages(self._install)
         self._ssh = Ssh(self._install)
+        self._debConfSelections = DebConfSelections(self._install)
 
     def defaultIdentity(self):
         return self._defaultIdentity
@@ -22,6 +23,9 @@ class AutoInstall:
 
     def ssh(self):
         return self._ssh
+
+    def debConfSelections(self):
+        return self._debConfSelections
 
 
 class DefaultIdentity:
@@ -78,3 +82,10 @@ class Ssh:
 
     def allowPassword(self):
         return self._allowPassword
+
+class DebConfSelections:
+    def __init__(self, yamlData):
+        self._debConfSelections = yamlData["debconf-selections"]
+
+    def debConfSelections(self):
+        return self._debConfSelections

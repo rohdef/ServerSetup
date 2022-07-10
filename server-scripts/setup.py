@@ -17,6 +17,11 @@ class ProvisionedServer(System):
 
     def setup(self):
         self._logger.info("Setting up server")
+        self._setDebConfSelections(self._autoInstall.debConfSelections().debConfSelections())
+
+    def _setDebConfSelections(self, selections):
+        echo = self._runPipe(["echo", "-e", selections])
+        self._endPipe(["debconf-set-selections"], echo)
 
 
 if __name__ == "__main__":

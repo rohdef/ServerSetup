@@ -1,5 +1,11 @@
 # ServerSetup
 
+## Prerequisites
+
+- `sudo apt install sshpass`
+
+## Running
+
 Run with
 
 ```
