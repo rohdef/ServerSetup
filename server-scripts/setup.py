@@ -20,6 +20,7 @@ class ProvisionedServer(System):
         self._logger.info("Setting up server")
         self._setDebConfSelections(self._autoInstall.debConfSelections().debConfSelections())
         self._installPackages(["slapd", "ldap-utils"])
+        self._setLdapDefaults()
 
 
     def _setDebConfSelections(self, selections):
@@ -31,6 +32,13 @@ class ProvisionedServer(System):
         self._logger.info(f"Installing packages: {packages}")
         installCommand = ["apt-get", "install", "-y"] + packages
         self._run(installCommand, False)
+
+    def _setLdapDefaults(self):
+        self._logger.info(f"Setting default settings for LDAP")
+        self._run("sed -i \"/BASE/d\" /etc/ldap/ldap.conf")
+        self._run("sed -i \"/URI/d\" /etc/ldap/ldap.conf")
+        self._run("echo \"BASE	dc=cult-of-funny-hats,dc=dk\" >> /etc/ldap/ldap.conf")
+        self._run("echo \"URI	ldap://ldap.cult-of-funny-hats.dk\" >> /etc/ldap/ldap.conf")
 
 
 if __name__ == "__main__":
