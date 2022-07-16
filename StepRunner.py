@@ -26,7 +26,7 @@ class StepRunner:
 
         runner = runners.get(step.uses(), self.missingPlugin(step))
 
-        environmentUpdates = runner(environment, step.parameters())
+        environmentUpdates = runner(self._parseEnvironmentVariables(environment), step.parameters())
         newEnvironment = environment.copy()
 
         if not environmentUpdates == None:
@@ -38,12 +38,20 @@ class StepRunner:
 
         return newEnvironment
 
+    def _parseEnvironmentVariables(self, environment):
+        newEnvironment = {}
+
+        for key, value in environment.items():
+            newEnvironment[key] = self._parseEnvironmentValue(value, dict(self._configuration.properties()), environment)
+
+        return newEnvironment
+
     def debug(self, environment, parameters):
         self._logger.info("Debug information")
         self._logger.info(json.dumps(environment, indent=4))
 
     def updateEnvironment(self, environment, parameters):
-        self._logger.info(f"Updating environment variable")
+        self._logger.info("Updating environment variables")
 
         newEnvironment = {}
 
