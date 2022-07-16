@@ -93,7 +93,7 @@ class StepRunner:
         )
         self._runSshCommand(
             environment,
-            f"export SUDO_ASKPASS=/home/{username}/{self._scriptPath}/ask-pass-default.py; sudo --askpass rm -r /home/{username}/{self._scriptPath} || true"
+            f"export SUDO_ASKPASS=/home/{username}/{self._scriptPath}/ask-pass.py; sudo --askpass rm -r /home/{username}/{self._scriptPath} || true"
         )
         self._copyFiles(environment, "server-scripts")
         self._runSshCommand(
@@ -122,7 +122,7 @@ class StepRunner:
         
         self._runSshCommand(
             environment,
-            f"export SUDO_ASKPASS=/home/{username}/{self._scriptPath}/ask-pass-default.py; sudo --askpass ~/{self._scriptPath}/declarative.py -c ~/{script}.yaml {jobCommand}"
+            f"export SUDO_ASKPASS=/home/{username}/{self._scriptPath}/ask-pass.py; sudo --askpass ~/{self._scriptPath}/declarative.py -c ~/{script}.yaml {jobCommand}"
         )
         
         return environment
@@ -136,7 +136,7 @@ class StepRunner:
         try:
             self._runSshCommand(
                 environment,
-                f"export SUDO_ASKPASS=/home/{username}/{self._scriptPath}/ask-pass-default.py; sudo --askpass shutdown -r now"
+                f"export SUDO_ASKPASS=/home/{username}/{self._scriptPath}/ask-pass.py; sudo --askpass shutdown -r now"
             )
         except:
             pass #expected, ssh will terminate connection
