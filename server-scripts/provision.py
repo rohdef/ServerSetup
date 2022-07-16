@@ -29,12 +29,12 @@ class PreparedServer(System):
 
     def _disableSnap(self):
         self._logger.info("Disabling snap package manager")
-        self._run("apt-get -y purge snapd")
-        self._run("rm -rf /snap /var/snap /var/lib/snapd")
+        self._run(["apt-get", "-y", "purge snapd"], False)
+        self._run(["rm", "-rf", "/snap", "/var/snap", "/var/lib/snapd"], False)
 
     def _aptUpdate(self):
         self._logger.info("Updating package lists")
-        self._run("apt-get update")
+        self._run(["apt-get", "update", False])
 
     def _installPackages(self, packages):
         self._logger.info(f"Installing packages: {packages}")

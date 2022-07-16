@@ -1,10 +1,10 @@
 from subprocess import run, Popen, PIPE
 
 class System:
-    def _runCapture(self, command):
-        return run(command, shell=True, capture_output=True)
+    def _runCapture(self, command, shell=False):
+        return run(command, shell=shell, capture_output=True)
     
-    def _run(self, command, shell=True):
+    def _run(self, command, shell=False):
         run(command, check=True, shell=shell)
 
     def _runPipe(self, command, input=None):
@@ -27,4 +27,4 @@ class System:
             self._logger.info("No output from command")
 
     def _runAsUser(self, user, command):
-        run(f"sudo --askpass -u {user} {command}", check=True, shell=True)
+        run(f"sudo -u \"{user}\" {command}", check=True, shell=True)

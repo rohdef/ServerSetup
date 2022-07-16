@@ -21,7 +21,7 @@ class ProvisionedServer:
         logger.info("Executing setup scripts")
         self._runSshCommand("~/do-configure/setup.sh")
 
-        self._reboot(self._username)
+#        self._reboot(self._username)
 
         logger.info("Server is ready to use")
 
