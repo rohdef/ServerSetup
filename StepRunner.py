@@ -26,7 +26,7 @@ class StepRunner:
 
         runner = runners.get(step.uses(), self.missingPlugin(step))
 
-        environmentUpdates = runner(self._parseEnvironmentVariables(environment), step.parameters())
+        environmentUpdates = runner(environment, self._parseEnvironmentVariables(step.parameters(), environment))
         newEnvironment = environment.copy()
 
         if not environmentUpdates == None:
@@ -38,14 +38,6 @@ class StepRunner:
 
         return newEnvironment
 
-    def _parseEnvironmentVariables(self, environment):
-        newEnvironment = {}
-
-        for key, value in environment.items():
-            newEnvironment[key] = self._parseEnvironmentValue(value, dict(self._configuration.properties()), environment)
-
-        return newEnvironment
-
     def debug(self, environment, parameters):
         self._logger.info("Debug information")
         self._logger.info(json.dumps(environment, indent=4))
@@ -53,10 +45,22 @@ class StepRunner:
     def updateEnvironment(self, environment, parameters):
         self._logger.info("Updating environment variables")
 
+        environmentUpdates = {}
+
+        for key, value in parameters.items():
+            environmentUpdates[key] = self._parseEnvironmentValue(value, dict(self._configuration.properties()), environment)
+
+        return environmentUpdates
+
+    def _parseEnvironmentVariables(self, parameters, environment):
         newEnvironment = {}
 
         for key, value in parameters.items():
-            newEnvironment[key] = self._parseEnvironmentValue(value, dict(self._configuration.properties()), environment)
+            newEnvironment[key] = self._parseEnvironmentValue(
+                value,
+                dict(self._configuration.properties()),
+                environment
+            )
 
         return newEnvironment
 
@@ -65,7 +69,8 @@ class StepRunner:
     ### No escapes
     ### Doesn't allow anything but letters for now
     def _parseEnvironmentValue(self, value, properties, environment):
-        properties = properties
+        if not isinstance(value, str):
+            return value
 
         if "$properties" in value:
             variables = re.findall(r"\$properties\.(\w+)", value)
@@ -109,7 +114,7 @@ class StepRunner:
         )
 
     def runRecipe(self, environment, parameters):
-        self._logger.info(f"Running recipe")
+        self._logger.info("Running recipe")
 
         username = environment["sshUsername"]
         script = parameters["script"]

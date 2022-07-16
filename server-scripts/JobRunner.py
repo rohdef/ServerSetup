@@ -9,7 +9,7 @@ class JobRunner:
     def runJob(self, job):
         self._logger.info(f"Running job: {job.name()}")
 
-        environment = frozenset({}.items())
+        environment = {}
         for step in job.steps():
             environment = self._stepRunner.runStep(step, environment)
 

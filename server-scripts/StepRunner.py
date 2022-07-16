@@ -9,7 +9,6 @@ class StepRunner(System):
     def __init__(self):
         self._logger = logging.getLogger(__name__)
 
-
     def runStep(self, step, environment):
         self._logger.info(f"Running step: {step.name()}")
         
@@ -29,36 +28,52 @@ class StepRunner(System):
 
         runner = runners.get(step.uses(), self.missingPlugin(step))
 
-        newEnvironment = runner(environment, step.parameters())
-        
-        if not isinstance(newEnvironment, frozenset):
-            raise Exception(f"Environment returned from runner implementation for: [{step.uses()}] was not a frozenset, but {type(newEnvironment)}")
+        environmentUpdates = runner(
+            environment,
+            self._parseEnvironmentVariables(step.parameters(), environment)
+        )
+        newEnvironment = environment.copy()
+
+        if not environmentUpdates == None:
+            if not isinstance(newEnvironment, dict):
+                raise Exception(f"Environment returned from runner implementation for: [{step.uses()}] was not a dictionary, but {type(newEnvironment)}")
+
+            for key, value in environmentUpdates.items():
+                newEnvironment[key] = value
+
+        return newEnvironment
+
+    def _parseEnvironmentVariables(self, parameters, environment):
+        newEnvironment = {}
+
+        for key, value in parameters.items():
+            newEnvironment[key] = self._parseEnvironmentValue(value, environment)
 
         return newEnvironment
 
     def debug(self, environment, parameters):
         self._logger.info("Debug information")
-        self._logger.info(json.dumps(dict(environment), indent=4))
+        self._logger.info(json.dumps(environment, indent=4))
         
         return environment
 
     def updateEnvironment(self, environment, parameters):
-        self._logger.info(f"Updating environment variable")
+        self._logger.info("Updating environment variable")
 
-        newEnvironment = dict(environment)
+        environmentUpdates = {}
         
-        params = dict(parameters)
-        for key, value in params.items():
-            newEnvironment[key] = self._parseEnvironmentValue(value, environment)
+        for key, value in parameters.items():
+            environmentUpdates[key] = self._parseEnvironmentValue(value, environment)
 
-        return frozenset(newEnvironment.items())
+        return environmentUpdates
 
     ### Simplistic parser
     ### only looks for $properties and $environment followed by ".{variableName}" where variableName must be in the dict
     ### No escapes
     ### Doesn't allow anything but letters for now
     def _parseEnvironmentValue(self, value, environment):
-        environment = dict(environment)
+        if not isinstance(value, str):
+            return value
         
         if "$environment" in value:
             variables = re.findall(r"\$environment\.(\w+)", value)
@@ -166,8 +181,8 @@ class StepRunner(System):
     def addAuthorizedKeys(self, environment, parameters):
         self._logger.info("Adding authorized ssh keys")
 
-        username = self._parseEnvironmentValue(parameters["username"], environment)
-        rsaKeys = self._parseEnvironmentValue(parameters["rsaKeys"], environment)
+        username = parameters["username"]
+        rsaKeys = parameters["rsaKeys"]
         
         homeDirResult = self._runCapture(f"echo ~{username}", shell=True)
         homeDir = homeDirResult.stdout.decode().strip()
@@ -187,7 +202,7 @@ class StepRunner(System):
     def changeUserShell(self, environment, parameters):
         self._logger.info("Changing user shell")
 
-        username = self._parseEnvironmentValue(parameters["username"], environment)
+        username = parameters["username"]
         shell = parameters["shell"]
        
         self._logger.info(f"Updating shell for {username} to {shell}")
@@ -198,7 +213,7 @@ class StepRunner(System):
     def deleteUser(self, environment, parameters):        
         username = parameters["username"]
 
-        homeDirResult = self._runCapture(["echo", f"~{username}"])
+        homeDirResult = self._runCapture(f"echo ~{username}", True)
         homeDir = homeDirResult.stdout.decode().strip()
         
         self._logger.info(f"Deleting user: {username}")
