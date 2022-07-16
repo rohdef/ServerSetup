@@ -23,8 +23,8 @@ class Configuration:
                     "jobs=",
                 ]
             )
-        except getopt.GetoptError:
-            logging.error(f"Invalid arguments given")
+        except getopt.GetoptError as error:
+            logging.error("Invalid argument given: %s", error.msg)
             sys.exit(2)
 
         logLevel="ERROR"
