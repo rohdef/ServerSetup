@@ -1,12 +1,15 @@
 package configuration
 
 import it.czerwinski.kotlin.util.Either
+import it.czerwinski.kotlin.util.Left
 import it.czerwinski.kotlin.util.Right
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
+import kotlin.reflect.KClass
+import kotlin.reflect.cast
 
 @kotlinx.serialization.Serializable(with = ParametersSerializer::class)
 sealed interface Parameters {
@@ -21,27 +24,38 @@ sealed interface Parameters {
     @kotlinx.serialization.Serializable(with = MapParameterSerializer::class)
     data class Map(val value: kotlin.collections.Map<kotlin.String, Parameters>) : Parameters {
         fun integerValue(key: kotlin.String): Either<ParameterError, Int> {
-            val parameter = value[key]
-            return when (parameter) {
-                is Integer -> Right(parameter.value)
-                else -> TODO()
-            }
+            return getValue(key, Integer::class)
+                .map { it.value }
         }
 
         fun stringValue(key: kotlin.String): Either<ParameterError, kotlin.String> {
-            TODO("not implemented")
+            return getValue(key, String::class)
+                .map { it.value }
         }
 
         fun booleanValue(key: kotlin.String): Either<ParameterError, kotlin.Boolean> {
-            TODO("not implemented")
+            return getValue(key, Boolean::class)
+                .map { it.value }
         }
 
         fun listValue(key: kotlin.String): Either<ParameterError, kotlin.collections.List<Parameters>> {
-            TODO("not implemented")
+            return getValue(key, List::class)
+                .map { it.value }
         }
 
-        fun mapValue(key: kotlin.String): Either<ParameterError, kotlin.collections.Map<String, Parameters>> {
-            TODO("not implemented")
+        fun mapValue(key: kotlin.String): Either<ParameterError, kotlin.collections.Map<kotlin.String, Parameters>> {
+            return getValue(key, Map::class)
+                .map { it.value }
+        }
+
+        private fun <T : Parameters> getValue(key: kotlin.String, kClass: KClass<T>): Either<ParameterError, T> {
+            val parameter = value[key]
+
+            return when {
+                kClass.isInstance(parameter) -> Right(kClass.cast(parameter))
+                parameter == null -> Left(ParameterError.UnknownKey(key, value.keys))
+                else -> Left(ParameterError.WrongType(key, kClass, parameter::class))
+            }
         }
 
         constructor(vararg pairs: Pair<kotlin.String, Parameters>) : this(mapOf(*pairs))
@@ -60,7 +74,11 @@ sealed interface ParameterError {
         val validKeys: Set<String>,
     ) : ParameterError
 
-    object WrongType : ParameterError
+    data class WrongType(
+        val key: String,
+        val expectedType: KClass<out Parameters>,
+        val actualType: KClass<out Parameters>,
+    ) : ParameterError
 }
 
 
