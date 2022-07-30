@@ -1,6 +1,7 @@
 package configuration
 
 import it.czerwinski.kotlin.util.Either
+import it.czerwinski.kotlin.util.Right
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
@@ -20,7 +21,11 @@ sealed interface Parameters {
     @kotlinx.serialization.Serializable(with = MapParameterSerializer::class)
     data class Map(val value: kotlin.collections.Map<kotlin.String, Parameters>) : Parameters {
         fun integerValue(key: kotlin.String): Either<ParameterError, Int> {
-            TODO("not implemented")
+            val parameter = value[key]
+            return when (parameter) {
+                is Integer -> Right(parameter.value)
+                else -> TODO()
+            }
         }
 
         fun stringValue(key: kotlin.String): Either<ParameterError, kotlin.String> {
@@ -69,9 +74,11 @@ abstract class BaseParametersSerializer<T : Parameters> : KSerializer<T> {
         is Parameters.Map -> JsonObject(
             value.value.mapValues { toJsonElement(it.value) }
         )
+
         is Parameters.List -> JsonArray(
             value.value.map { toJsonElement(it) }
         )
+
         is Parameters.Integer -> JsonPrimitive(value.value)
         is Parameters.String -> JsonPrimitive(value.value)
         is Parameters.Boolean -> JsonPrimitive(value.value)
@@ -114,6 +121,7 @@ object StringParameterSerializer : BaseParametersSerializer<Parameters.String>()
                 jsonElement.isString -> Parameters.String(jsonElement.content)
                 else -> throw IllegalArgumentException("Only strings are allowed here")
             }
+
             else -> throw IllegalArgumentException("Only strings are allowed here")
         }
     }
