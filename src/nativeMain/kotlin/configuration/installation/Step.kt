@@ -1,7 +1,7 @@
 package configuration.installation
 
 import configuration.Parameters
-import configuration.plugins.ActionId
+import plugins.ActionId
 
 @kotlinx.serialization.Serializable
 data class Step(

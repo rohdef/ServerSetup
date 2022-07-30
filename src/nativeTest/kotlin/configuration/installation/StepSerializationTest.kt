@@ -1,7 +1,7 @@
 package configuration.installation
 
 import configuration.Parameters
-import configuration.plugins.ActionId
+import plugins.ActionId
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json

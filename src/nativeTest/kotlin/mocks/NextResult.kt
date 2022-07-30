@@ -1,6 +1,6 @@
 package mocks
 
-import configuration.engine.EngineError
+import engine.EngineError
 
 sealed interface NextResult {
     data class Success<T>(

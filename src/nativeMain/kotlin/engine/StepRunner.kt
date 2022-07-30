@@ -1,4 +1,4 @@
-package configuration.engine
+package engine
 
 import configuration.installation.Step
 import it.czerwinski.kotlin.util.Either

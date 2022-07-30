@@ -1,4 +1,4 @@
-package configuration.engine
+package engine
 
 import configuration.installation.Job
 import it.czerwinski.kotlin.util.Either
@@ -7,11 +7,11 @@ import it.czerwinski.kotlin.util.Right
 import it.czerwinski.kotlin.util.flatMap
 import mu.KotlinLogging
 
-private val logger = KotlinLogging.logger {}
-
 class JobRunnerImplementation(
     private val stepRunner: StepRunner,
 ) : JobRunner {
+    private val logger = KotlinLogging.logger {}
+
     override fun run(job: Job, initialEnvironment: Environment): Either<EngineError, Environment> {
         logger.info { "Running job: ${job.name}" }
 

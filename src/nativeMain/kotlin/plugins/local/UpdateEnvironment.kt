@@ -1,8 +1,9 @@
-package configuration.plugins
+package plugins.local
 
 import configuration.Parameters
-import configuration.engine.EngineError
-import configuration.engine.EnvironmentUpdates
+import engine.EngineError
+import engine.EnvironmentUpdates
+import plugins.StepAction
 import it.czerwinski.kotlin.util.Either
 import it.czerwinski.kotlin.util.Left
 import it.czerwinski.kotlin.util.Right

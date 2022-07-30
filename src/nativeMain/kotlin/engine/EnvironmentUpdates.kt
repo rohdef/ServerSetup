@@ -1,3 +1,3 @@
-package configuration.engine
+package engine
 
 typealias EnvironmentUpdates = Map<String, String>

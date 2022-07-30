@@ -1,5 +1,5 @@
 package mocks
 
-import configuration.engine.EngineError
+import engine.EngineError
 
 object TestError : EngineError

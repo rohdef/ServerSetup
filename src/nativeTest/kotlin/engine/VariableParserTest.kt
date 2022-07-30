@@ -1,8 +1,8 @@
 package engine
 
 import configuration.Parameters
-import configuration.engine.VariableParser
-import configuration.engine.VariableParserError
+import engine.VariableParser
+import engine.VariableParserError
 import io.kotest.matchers.shouldBe
 import it.czerwinski.kotlin.util.Either
 import it.czerwinski.kotlin.util.Left

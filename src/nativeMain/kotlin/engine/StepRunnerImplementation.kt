@@ -1,17 +1,17 @@
-package configuration.engine
+package engine
 
 import configuration.installation.Step
 import it.czerwinski.kotlin.util.Either
 import it.czerwinski.kotlin.util.flatMap
 import mu.KotlinLogging
 
-private val logger = KotlinLogging.logger {}
-
 class StepRunnerImplementation(
     private val properties: Properties,
     private val runners: Runners,
     private val parser: VariableParser
 ) : StepRunner {
+    private val logger = KotlinLogging.logger {}
+
     override fun run(step: Step, environment: Environment): Either<EngineError, EnvironmentUpdates> {
         logger.info { "Running step: ${step.name}" }
 

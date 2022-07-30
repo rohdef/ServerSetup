@@ -1,9 +1,9 @@
 package engine
 
-import configuration.engine.JobRunnerImplementation
+import engine.JobRunnerImplementation
 import configuration.installation.Job
 import configuration.installation.Step
-import configuration.plugins.ActionId
+import plugins.ActionId
 import io.kotest.matchers.shouldBe
 import it.czerwinski.kotlin.util.Left
 import it.czerwinski.kotlin.util.Right

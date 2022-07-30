@@ -1,9 +1,9 @@
 package mocks.plugins
 
 import configuration.Parameters
-import configuration.engine.EngineError
-import configuration.engine.EnvironmentUpdates
-import configuration.plugins.StepAction
+import engine.EngineError
+import engine.EnvironmentUpdates
+import plugins.StepAction
 import it.czerwinski.kotlin.util.Either
 import it.czerwinski.kotlin.util.Left
 import it.czerwinski.kotlin.util.Right

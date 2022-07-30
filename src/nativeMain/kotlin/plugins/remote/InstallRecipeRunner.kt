@@ -1,11 +1,12 @@
-package configuration.plugins
+package plugins.remote
 
 import configuration.Parameters
-import configuration.engine.EngineError
-import configuration.engine.EnvironmentUpdates
+import engine.EngineError
+import engine.EnvironmentUpdates
+import plugins.StepAction
 import it.czerwinski.kotlin.util.Either
 
-object Reboot : StepAction {
+object InstallRecipeRunner : StepAction {
     override fun run(
         parameters: Parameters.Map,
     ): Either<EngineError, EnvironmentUpdates> {

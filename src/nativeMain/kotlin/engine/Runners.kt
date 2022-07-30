@@ -1,8 +1,8 @@
-package configuration.engine
+package engine
 
-import configuration.plugins.ActionId
-import configuration.plugins.MissingPlugin
-import configuration.plugins.StepAction
+import plugins.ActionId
+import plugins.MissingPlugin
+import plugins.StepAction
 import it.czerwinski.kotlin.util.Either
 import it.czerwinski.kotlin.util.Left
 import it.czerwinski.kotlin.util.Right

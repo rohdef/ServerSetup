@@ -1,15 +1,16 @@
-package configuration.plugins
+package plugins.local
 
 import configuration.Parameters
-import configuration.engine.EngineError
-import configuration.engine.EnvironmentUpdates
+import engine.EngineError
+import engine.EnvironmentUpdates
+import plugins.StepAction
 import it.czerwinski.kotlin.util.Either
 import it.czerwinski.kotlin.util.Right
 import mu.KotlinLogging
 
-private val logger = KotlinLogging.logger {}
-
 object Debug : StepAction {
+    private val logger = KotlinLogging.logger {}
+
     override fun run(
         parameters: Parameters.Map,
     ): Either<EngineError, EnvironmentUpdates> {

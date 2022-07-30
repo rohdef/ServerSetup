@@ -1,6 +1,6 @@
 package configuration
 
-import configuration.engine.Properties
+import engine.Properties
 import configuration.installation.Installation
 import configuration.installation.JobId
 import kotlinx.serialization.decodeFromString

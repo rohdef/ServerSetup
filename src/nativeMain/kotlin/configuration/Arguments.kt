@@ -1,6 +1,6 @@
 package configuration
 
-import configuration.engine.Properties
+import engine.Properties
 import configuration.installation.JobId
 import kotlinx.cli.ArgParser
 import kotlinx.cli.ArgType

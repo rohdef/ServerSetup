@@ -1,13 +1,13 @@
 package engine
 
 import configuration.Parameters
-import configuration.engine.Runners
-import configuration.engine.StepRunnerImplementation
-import configuration.engine.VariableParser
-import configuration.engine.VariableParserError
+import engine.Runners
+import engine.StepRunnerImplementation
+import engine.VariableParser
+import engine.VariableParserError
 import configuration.installation.Step
-import configuration.plugins.ActionId
-import configuration.plugins.MissingPlugin
+import plugins.ActionId
+import plugins.MissingPlugin
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf

@@ -1,9 +1,9 @@
 package mocks.engine
 
-import configuration.engine.EngineError
-import configuration.engine.Environment
-import configuration.engine.EnvironmentUpdates
-import configuration.engine.StepRunner
+import engine.EngineError
+import engine.Environment
+import engine.EnvironmentUpdates
+import engine.StepRunner
 import configuration.installation.Step
 import it.czerwinski.kotlin.util.Either
 import it.czerwinski.kotlin.util.Left

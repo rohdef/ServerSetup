@@ -1,7 +1,7 @@
-package plugins
+package plugins.local
 
 import configuration.Parameters
-import configuration.plugins.Debug
+import plugins.local.Debug
 import io.kotest.inspectors.forAll
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain

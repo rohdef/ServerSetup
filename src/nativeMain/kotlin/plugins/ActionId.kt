@@ -1,4 +1,4 @@
-package configuration.plugins
+package plugins
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind

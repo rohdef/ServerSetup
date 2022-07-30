@@ -1,8 +1,8 @@
-package plugins
+package plugins.local
 
 import configuration.Parameters
-import configuration.plugins.UpdateEnvironment
-import configuration.plugins.UpdateEnvironmentError
+import plugins.local.UpdateEnvironment
+import plugins.local.UpdateEnvironmentError
 import io.kotest.matchers.shouldBe
 import it.czerwinski.kotlin.util.Left
 import it.czerwinski.kotlin.util.Right

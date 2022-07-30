@@ -1,8 +1,8 @@
-package configuration.plugins
+package plugins
 
 import configuration.Parameters
-import configuration.engine.EngineError
-import configuration.engine.EnvironmentUpdates
+import engine.EngineError
+import engine.EnvironmentUpdates
 import it.czerwinski.kotlin.util.Either
 
 interface StepAction {
