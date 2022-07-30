@@ -1,5 +1,6 @@
 package configuration
 
+import it.czerwinski.kotlin.util.Either
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
@@ -18,6 +19,26 @@ sealed interface Parameters {
 
     @kotlinx.serialization.Serializable(with = MapParameterSerializer::class)
     data class Map(val value: kotlin.collections.Map<kotlin.String, Parameters>) : Parameters {
+        fun integerValue(key: kotlin.String): Either<ParameterError, Int> {
+            TODO("not implemented")
+        }
+
+        fun stringValue(key: kotlin.String): Either<ParameterError, kotlin.String> {
+            TODO("not implemented")
+        }
+
+        fun booleanValue(key: kotlin.String): Either<ParameterError, kotlin.Boolean> {
+            TODO("not implemented")
+        }
+
+        fun listValue(key: kotlin.String): Either<ParameterError, kotlin.collections.List<Parameters>> {
+            TODO("not implemented")
+        }
+
+        fun mapValue(key: kotlin.String): Either<ParameterError, kotlin.collections.Map<String, Parameters>> {
+            TODO("not implemented")
+        }
+
         constructor(vararg pairs: Pair<kotlin.String, Parameters>) : this(mapOf(*pairs))
     }
 
@@ -27,6 +48,13 @@ sealed interface Parameters {
     @kotlinx.serialization.Serializable
     data class Boolean(val value: kotlin.Boolean) : Parameters
 }
+
+sealed interface ParameterError {
+    object UnknownKey : ParameterError
+
+    object WrongType : ParameterError
+}
+
 
 abstract class BaseParametersSerializer<T : Parameters> : KSerializer<T> {
     override val descriptor: SerialDescriptor = JsonElement.serializer().descriptor
