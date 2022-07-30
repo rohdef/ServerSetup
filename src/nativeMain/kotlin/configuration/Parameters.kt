@@ -55,7 +55,10 @@ sealed interface Parameters {
 }
 
 sealed interface ParameterError {
-    object UnknownKey : ParameterError
+    data class UnknownKey(
+        val missingKey: String,
+        val validKeys: Set<String>,
+    ) : ParameterError
 
     object WrongType : ParameterError
 }

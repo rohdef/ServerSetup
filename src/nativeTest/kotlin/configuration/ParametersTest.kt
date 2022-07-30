@@ -45,7 +45,11 @@ class ParametersTest {
         fun `missing integer`() {
             val integer = inputMap.integerValue("old age")
 
-            integer.shouldBe(Left(ParameterError.UnknownKey))
+            integer.shouldBe(
+                Left(
+                    ParameterError.UnknownKey("old age", inputMap.value.keys)
+                )
+            )
         }
 
         @Test
@@ -66,7 +70,11 @@ class ParametersTest {
         fun `missing string`() {
             val string = inputMap.stringValue("truthful liar")
 
-            string.shouldBe(Left(ParameterError.UnknownKey))
+            string.shouldBe(
+                Left(
+                    ParameterError.UnknownKey("truthful liar", inputMap.value.keys)
+                )
+            )
         }
 
         @Test
@@ -87,14 +95,18 @@ class ParametersTest {
         fun `missing boolean`() {
             val boolean = inputMap.booleanValue("enabled after dark")
 
-            boolean.shouldBe(Left(ParameterError.UnknownKey))
+            boolean.shouldBe(
+                Left(
+                    ParameterError.UnknownKey("enabled after dark", inputMap.value.keys)
+                )
+            )
         }
 
         @Test
         fun `type is not boolean`() {
             val boolean = inputMap.booleanValue("enabled items")
 
-            boolean.shouldBe(Left(ParameterError.UnknownKey))
+            boolean.shouldBe(Left(ParameterError.WrongType))
         }
 
         @Test
@@ -115,14 +127,19 @@ class ParametersTest {
         fun `missing list`() {
             val list = inputMap.listValue("shopping grouped")
 
-            list.shouldBe(Left(ParameterError.UnknownKey))
+            list.shouldBe(
+                Left(
+                    ParameterError.UnknownKey("shopping fashion", inputMap.value.keys)
+                )
+            )
+
         }
 
         @Test
         fun `type is not list`() {
             val list = inputMap.listValue("shopping fashion")
 
-            list.shouldBe(Left(ParameterError.UnknownKey))
+            list.shouldBe(Left(ParameterError.WrongType))
         }
 
         @Test
@@ -144,14 +161,18 @@ class ParametersTest {
         fun `missing map`() {
             val map = inputMap.mapValue("permissions numbered")
 
-            map.shouldBe(Left(ParameterError.UnknownKey))
+            map.shouldBe(
+                Left(
+                    ParameterError.UnknownKey("permissions windows", inputMap.value.keys)
+                )
+            )
         }
 
         @Test
         fun `type is not map`() {
             val map = inputMap.mapValue("permissions windows")
 
-            map.shouldBe(Left(ParameterError.UnknownKey))
+            map.shouldBe(Left(ParameterError.WrongType))
         }
     }
 }
