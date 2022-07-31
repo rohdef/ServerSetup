@@ -38,16 +38,26 @@ object Reboot : StepAction {
     ) {
         companion object {
             fun create(parameters: Parameters.Map): Either<ParameterError, Configuration> {
-                return parameters.stringValue("hostname")
-                    .flatMap { hostname ->
-                        return parameters.stringValue("username")
-                            .flatMap { username ->
-                                return parameters.integerValue("port", 22)
-                                    .map { port -> Configuration(hostname, username, port) }
-                            }
+                return Right(::Configuration)
+                    .flatMap { fn ->
+                        parameters.stringValue("hostname")
+                            .map { hostname -> { username: String, port: Int -> fn(hostname, username, port) } }
+                    }
+                    .flatMap { fn ->
+                        parameters.stringValue("username")
+                            .map { username -> { port: Int -> fn(username, port) } }
+                    }
+                    .flatMap { fn ->
+                        parameters.integerValue("port", 22)
+                            .map { fn(it) }
                     }
             }
         }
+    }
+
+    enum class WaitForConnection {
+        WAIT,
+        DO_NOT_WAIT,
     }
 }
 
