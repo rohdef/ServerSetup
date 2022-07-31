@@ -35,7 +35,7 @@ class ParametersTest {
         )
 
         @Test
-        fun `integer`() {
+        fun `integer value`() {
             val integer = inputMap.integerValue("age")
 
             integer.shouldBe(Right(4))
@@ -65,11 +65,39 @@ class ParametersTest {
                     )
                 )
             )
-
         }
 
         @Test
-        fun `string`() {
+        fun `integer value with default`() {
+            val integer = inputMap.integerValue("age", 101)
+
+            integer.shouldBe(Right(4))
+        }
+
+        @Test
+        fun `missing integer with default`() {
+            val integer = inputMap.integerValue("old age", 101)
+
+            integer.shouldBe(Right(101))
+        }
+
+        @Test
+        fun `type is not integer with default`() {
+            val integer = inputMap.integerValue("age as string")
+
+            integer.shouldBe(
+                Left(
+                    ParameterError.WrongType(
+                        "age as string",
+                        Parameters.Integer::class,
+                        Parameters.String::class,
+                    )
+                )
+            )
+        }
+
+        @Test
+        fun `string value`() {
             val string = inputMap.stringValue("truthful")
 
             string.shouldBe(Right("no way in this life"))
@@ -99,11 +127,39 @@ class ParametersTest {
                     )
                 )
             )
-
         }
 
         @Test
-        fun `boolean`() {
+        fun `string value with default`() {
+            val string = inputMap.stringValue("truthful", "always tell the truth")
+
+            string.shouldBe(Right("no way in this life"))
+        }
+
+        @Test
+        fun `missing string with default`() {
+            val string = inputMap.stringValue("truthful liar", "always tell the truth")
+
+            string.shouldBe(Right("always tell the truth"))
+        }
+
+        @Test
+        fun `type is not string with default`() {
+            val string = inputMap.stringValue("truthful as boolean", "always tell the truth")
+
+            string.shouldBe(
+                Left(
+                    ParameterError.WrongType(
+                        "truthful as boolean",
+                        Parameters.String::class,
+                        Parameters.Boolean::class,
+                    )
+                )
+            )
+        }
+
+        @Test
+        fun `boolean value`() {
             val boolean = inputMap.booleanValue("enabled")
 
             boolean.shouldBe(Right(true))
@@ -136,7 +192,36 @@ class ParametersTest {
         }
 
         @Test
-        fun `list`() {
+        fun `boolean value with default`() {
+            val boolean = inputMap.booleanValue("enabled", false)
+
+            boolean.shouldBe(Right(true))
+        }
+
+        @Test
+        fun `missing boolean with default`() {
+            val boolean = inputMap.booleanValue("enabled after dark", true)
+
+            boolean.shouldBe(Right(true))
+        }
+
+        @Test
+        fun `type is not boolean with default`() {
+            val boolean = inputMap.booleanValue("enabled items", false)
+
+            boolean.shouldBe(
+                Left(
+                    ParameterError.WrongType(
+                        "enabled items",
+                        Parameters.Boolean::class,
+                        Parameters.List::class,
+                    )
+                )
+            )
+        }
+
+        @Test
+        fun `list values`() {
             val list = inputMap.listValue("shopping")
 
             list.shouldBe(
@@ -153,11 +238,7 @@ class ParametersTest {
         fun `missing list`() {
             val list = inputMap.listValue("shopping fashion")
 
-            list.shouldBe(
-                Left(
-                    ParameterError.UnknownKey("shopping fashion", inputMap.value.keys)
-                )
-            )
+            list.shouldBe(Right(emptyList()))
         }
 
         @Test
@@ -177,7 +258,7 @@ class ParametersTest {
         }
 
         @Test
-        fun `map`() {
+        fun `map values`() {
             val map = inputMap.mapValue("permissions")
 
             map.shouldBe(
@@ -195,11 +276,7 @@ class ParametersTest {
         fun `missing map`() {
             val map = inputMap.mapValue("permissions windows")
 
-            map.shouldBe(
-                Left(
-                    ParameterError.UnknownKey("permissions windows", inputMap.value.keys)
-                )
-            )
+            map.shouldBe(Right(emptyMap()))
         }
 
         @Test

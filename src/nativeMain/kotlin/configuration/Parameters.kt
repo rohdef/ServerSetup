@@ -28,8 +28,18 @@ sealed interface Parameters {
                 .map { it.value }
         }
 
+        fun integerValue(key: kotlin.String, default: Int): Either<ParameterError, Int> {
+            return getValue(key, Integer(default), Integer::class)
+                .map { it.value }
+        }
+
         fun stringValue(key: kotlin.String): Either<ParameterError, kotlin.String> {
             return getValue(key, String::class)
+                .map { it.value }
+        }
+
+        fun stringValue(key: kotlin.String, default: kotlin.String): Either<ParameterError, kotlin.String> {
+            return getValue(key, String(default), String::class)
                 .map { it.value }
         }
 
@@ -38,13 +48,18 @@ sealed interface Parameters {
                 .map { it.value }
         }
 
+        fun booleanValue(key: kotlin.String, default: kotlin.Boolean): Either<ParameterError, kotlin.Boolean> {
+            return getValue(key, Boolean(default), Boolean::class)
+                .map { it.value }
+        }
+
         fun listValue(key: kotlin.String): Either<ParameterError, kotlin.collections.List<Parameters>> {
-            return getValue(key, List::class)
+            return getValue(key, List(), List::class)
                 .map { it.value }
         }
 
         fun mapValue(key: kotlin.String): Either<ParameterError, kotlin.collections.Map<kotlin.String, Parameters>> {
-            return getValue(key, Map::class)
+            return getValue(key, Map(), Map::class)
                 .map { it.value }
         }
 
@@ -54,6 +69,16 @@ sealed interface Parameters {
             return when {
                 kClass.isInstance(parameter) -> Right(kClass.cast(parameter))
                 parameter == null -> Left(ParameterError.UnknownKey(key, value.keys))
+                else -> Left(ParameterError.WrongType(key, kClass, parameter::class))
+            }
+        }
+
+        private fun <T : Parameters> getValue(key: kotlin.String, default: T, kClass: KClass<T>): Either<ParameterError, T> {
+            val parameter = value[key]
+
+            return when {
+                kClass.isInstance(parameter) -> Right(parameter as T)
+                parameter == null -> Right(default)
                 else -> Left(ParameterError.WrongType(key, kClass, parameter::class))
             }
         }
