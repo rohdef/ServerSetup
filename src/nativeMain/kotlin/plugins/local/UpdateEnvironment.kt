@@ -17,9 +17,9 @@ object UpdateEnvironment : StepAction {
                     val parameter = entry.value
                     when (parameter) {
                         is Parameters.Integer -> Either.Right(it + (entry.key to parameter.value.toString()))
+                        is Parameters.String -> Either.Right(it + (entry.key to parameter.value))
                         is Parameters.List -> Either.Left(UpdateEnvironmentError.ListNotAllowed(entry.key))
                         is Parameters.Map -> Either.Left(UpdateEnvironmentError.MapNotAllowed(entry.key))
-                        is Parameters.String -> Either.Right(it + (entry.key to parameter.value))
                     }
                 }
             }

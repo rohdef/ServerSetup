@@ -10,8 +10,6 @@ repositories {
     mavenCentral()
 }
 
-val kloggerVersion = "2.7.0"
-
 kotlin {
     val hostOs = System.getProperty("os.name")
     val isMingwX64 = hostOs.startsWith("Windows")

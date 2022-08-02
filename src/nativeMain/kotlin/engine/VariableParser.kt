@@ -13,9 +13,9 @@ class VariableParser {
     ) : Either<VariableParserError, Parameters> {
         return when(parameters) {
             is Parameters.Integer -> Either.Right(parameters)
+            is Parameters.String -> parse(properties, environment, parameters)
             is Parameters.List -> parse(properties, environment, parameters)
             is Parameters.Map -> parse(properties, environment, parameters)
-            is Parameters.String -> parse(properties, environment, parameters)
         }
     }
 
