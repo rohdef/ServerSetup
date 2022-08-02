@@ -1,8 +1,6 @@
 package utilities
 
-import it.czerwinski.kotlin.util.Either
-import it.czerwinski.kotlin.util.Left
-import it.czerwinski.kotlin.util.Right
+import arrow.core.Either
 import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.refTo
 import kotlinx.cinterop.toKString
@@ -40,16 +38,16 @@ class SystemUtilities {
         val commandToExecute = "${command} 2>&1"
         val filePointer = popen(commandToExecute, "r")
         if (filePointer == null) {
-            return Left(SystemUtilityError.CouldNotRunCommand(command))
+            return Either.Left(SystemUtilityError.CouldNotRunCommand(command))
         }
 
         val stdout = readProcessOutput(filePointer)
 
         val status = pclose(filePointer)
         return if (status == 0) {
-            Right(stdout)
+            Either.Right(stdout)
         } else {
-            Left(SystemUtilityError.ErrorRunningCommand(command, status, stdout))
+            Either.Left(SystemUtilityError.ErrorRunningCommand(command, status, stdout))
         }
     }
 

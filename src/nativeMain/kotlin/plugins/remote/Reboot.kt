@@ -1,22 +1,40 @@
 package plugins.remote
 
+import arrow.core.Either
+import arrow.core.computations.either
 import configuration.ParameterError
 import configuration.Parameters
 import engine.EngineError
 import engine.EnvironmentUpdates
-import it.czerwinski.kotlin.util.Either
-import it.czerwinski.kotlin.util.Right
-import it.czerwinski.kotlin.util.flatMap
 import plugins.StepAction
+import utilities.SystemUtilities
+import utilities.SystemUtilityError
 
 object Reboot : StepAction {
-    override fun run(
+    override suspend fun run(
         parameters: Parameters.Map,
     ): Either<EngineError, EnvironmentUpdates> {
+        val utils = SystemUtilities()
+        Configuration.create(parameters)
+            .map { configuration ->
+                val rebootCommand =
+                    "export SUDO_ASKPASS=/home/${configuration.username}/${configuration.scriptPath}/ask-pass.py; sudo --askpass shutdown -r now"
+
+                val result = utils.executeCommand(rebootCommand)
+
+                when (result) {
+                    is Either.Right -> TODO()
+                    is Either.Left -> {
+                        val error = result.value
+                        when (error) {
+                            is SystemUtilityError.CouldNotRunCommand -> TODO()
+                            is SystemUtilityError.ErrorRunningCommand -> error.status
+                        }
+                    }
+                }
 
 
-        val rebootCommand =
-            "export SUDO_ASKPASS=/home/{username}/{self._scriptPath}/ask-pass.py; sudo --askpass shutdown -r now"
+            }
         /*
          *  try:
               self._runSshCommand(
@@ -35,27 +53,32 @@ object Reboot : StepAction {
         val hostname: String,
         val username: String,
         val port: Int,
+        val waitForSystem: WaitForSystem,
+        val scriptPath: String,
     ) {
         companion object {
-            fun create(parameters: Parameters.Map): Either<ParameterError, Configuration> {
-                return Right(::Configuration)
-                    .flatMap { fn ->
-                        parameters.stringValue("hostname")
-                            .map { hostname -> { username: String, port: Int -> fn(hostname, username, port) } }
-                    }
-                    .flatMap { fn ->
-                        parameters.stringValue("username")
-                            .map { username -> { port: Int -> fn(username, port) } }
-                    }
-                    .flatMap { fn ->
-                        parameters.integerValue("port", 22)
-                            .map { fn(it) }
-                    }
+            suspend fun create(parameters: Parameters.Map): Either<ParameterError, Configuration> {
+                return either {
+                    val hostname = parameters.stringValue("hostname")
+                    val username = parameters.stringValue("username")
+                    val port = parameters.integerValue("port", 22)
+                    val wait = parameters.stringValue("wait", "DO_NOT_WAIT")
+                        .map { WaitForSystem.valueOf(it) }
+                    val scriptPath = parameters.stringValue("scriptPath", "blah")
+
+                    Configuration(
+                        hostname.bind(),
+                        username.bind(),
+                        port.bind(),
+                        wait.bind(),
+                        scriptPath.bind(),
+                    )
+                }
             }
         }
     }
 
-    enum class WaitForConnection {
+    enum class WaitForSystem {
         WAIT,
         DO_NOT_WAIT,
     }

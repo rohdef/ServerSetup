@@ -1,26 +1,24 @@
 package mocks.plugins
 
+import arrow.core.Either
 import configuration.Parameters
 import engine.EngineError
 import engine.EnvironmentUpdates
-import plugins.StepAction
-import it.czerwinski.kotlin.util.Either
-import it.czerwinski.kotlin.util.Left
-import it.czerwinski.kotlin.util.Right
 import mocks.NextResult
+import plugins.StepAction
 
 class TestAction(
     var nextResult: NextResult = NextResult.Success(emptyMap<String, String>())
 ) : StepAction {
     private val _executions = mutableListOf<Execution>()
 
-    override fun run(
+    override suspend fun run(
         parameters: Parameters.Map,
     ): Either<EngineError, EnvironmentUpdates> {
         val currentNextResult = nextResult
         val result = when(currentNextResult) {
-            is NextResult.Failure -> Left(currentNextResult.error)
-            is NextResult.Success<*> -> Right(currentNextResult.result as EnvironmentUpdates)
+            is NextResult.Failure -> Either.Left(currentNextResult.error)
+            is NextResult.Success<*> -> Either.Right(currentNextResult.result as EnvironmentUpdates)
         }
 
         _executions.add(

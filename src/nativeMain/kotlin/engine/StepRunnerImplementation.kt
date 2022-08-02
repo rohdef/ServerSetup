@@ -1,8 +1,8 @@
 package engine
 
+import arrow.core.Either
+import arrow.core.flatMap
 import configuration.installation.Step
-import it.czerwinski.kotlin.util.Either
-import it.czerwinski.kotlin.util.flatMap
 import mu.KotlinLogging
 
 class StepRunnerImplementation(
@@ -12,7 +12,7 @@ class StepRunnerImplementation(
 ) : StepRunner {
     private val logger = KotlinLogging.logger {}
 
-    override fun run(step: Step, environment: Environment): Either<EngineError, EnvironmentUpdates> {
+    override suspend fun run(step: Step, environment: Environment): Either<EngineError, EnvironmentUpdates> {
         logger.info { "Running step: ${step.name}" }
 
         return runners.runners.getValue(step.uses)

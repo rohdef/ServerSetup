@@ -1,26 +1,24 @@
 package engine
 
+import arrow.core.Either
 import configuration.Parameters
-import engine.Runners
-import engine.StepRunnerImplementation
-import engine.VariableParser
-import engine.VariableParserError
 import configuration.installation.Step
-import plugins.ActionId
-import plugins.MissingPlugin
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
-import it.czerwinski.kotlin.util.Left
-import it.czerwinski.kotlin.util.Right
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import mocks.plugins.TestAction
+import plugins.ActionId
+import plugins.MissingPlugin
 import kotlin.test.Test
 
+@ExperimentalCoroutinesApi
 class StepRunnerTest {
     private val parser = VariableParser()
 
     @Test
-    fun `Steps are distinguished by name`() {
+    fun `Steps are distinguished by name`() = runTest {
         val fooId = ActionId("foo")
         val fooAction = TestAction()
 
@@ -50,13 +48,13 @@ class StepRunnerTest {
 
         val result = stepRunner.run(step, environment)
 
-        result.shouldBeInstanceOf<Right<Any>>()
+        result.shouldBeInstanceOf<Either.Right<Any>>()
         fooAction.executions.shouldHaveSize(1)
         barAction.executions.shouldHaveSize(0)
     }
 
     @Test
-    fun `Missing action for handling step`() {
+    fun `Missing action for handling step`() = runTest {
         val fooId = ActionId("foo")
         val runners = Runners()
 
@@ -75,12 +73,12 @@ class StepRunnerTest {
 
         val result = stepRunner.run(step, environment)
 
-        val expectedResult = Left(MissingPlugin(ActionId("foo")))
+        val expectedResult = Either.Left(MissingPlugin(ActionId("foo")))
         result.shouldBe(expectedResult)
     }
 
     @Test
-    fun `Environments are sent correctly`() {
+    fun `Environments are sent correctly`() = runTest {
         val fooId = ActionId("foo")
         val fooAction = TestAction()
 
@@ -118,7 +116,7 @@ class StepRunnerTest {
     }
 
     @Test
-    fun `Parameters are parsed`() {
+    fun `Parameters are parsed`() = runTest {
         val fooId = ActionId("foo")
         val fooAction = TestAction()
 
@@ -173,7 +171,7 @@ class StepRunnerTest {
     }
 
     @Test
-    fun `Parsing errors are passed on`() {
+    fun `Parsing errors are passed on`() = runTest {
         val fooId = ActionId("foo")
         val fooAction = TestAction()
 
@@ -199,6 +197,6 @@ class StepRunnerTest {
         )
 
         val result = stepRunner.run(step, environment)
-        result.shouldBe(Left(VariableParserError.VariableNotFound("\$properties.something")))
+        result.shouldBe(Either.Left(VariableParserError.VariableNotFound("\$properties.something")))
     }
 }

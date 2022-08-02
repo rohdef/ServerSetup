@@ -1,10 +1,10 @@
 package plugins
 
+import arrow.core.Either
 import configuration.Parameters
 import engine.EngineError
 import engine.EnvironmentUpdates
-import it.czerwinski.kotlin.util.Either
 
 interface StepAction {
-    fun run(parameters: Parameters.Map): Either<EngineError, EnvironmentUpdates>
+    suspend fun run(parameters: Parameters.Map): Either<EngineError, EnvironmentUpdates>
 }

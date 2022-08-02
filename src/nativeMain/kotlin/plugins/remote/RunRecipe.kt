@@ -1,13 +1,13 @@
 package plugins.remote
 
+import arrow.core.Either
 import configuration.Parameters
 import engine.EngineError
 import engine.EnvironmentUpdates
 import plugins.StepAction
-import it.czerwinski.kotlin.util.Either
 
 object RunRecipe : StepAction {
-    override fun run(
+    override suspend fun run(
         parameters: Parameters.Map,
     ): Either<EngineError, EnvironmentUpdates> {
         TODO("not implemented")

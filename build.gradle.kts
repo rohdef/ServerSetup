@@ -34,7 +34,9 @@ kotlin {
 
         commonMain {
             dependencies {
-                implementation("it.czerwinski:kotlin-util:1.7.0")
+                implementation("io.arrow-kt:arrow-core:1.0.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+
 
                 implementation("io.github.microutils:kotlin-logging:2.1.23")
                 implementation("io.github.microutils:kotlin-logging-linuxx64:2.1.23")
@@ -46,6 +48,7 @@ kotlin {
 
         val nativeTest by getting {
             dependencies {
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
                 implementation("io.kotest:kotest-framework-engine:5.4.0")
                 implementation("io.kotest:kotest-assertions-core:5.4.0")
             }

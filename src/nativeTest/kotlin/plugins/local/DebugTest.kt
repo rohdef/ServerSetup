@@ -1,15 +1,17 @@
 package plugins.local
 
+import arrow.core.Either
 import configuration.Parameters
-import plugins.local.Debug
 import io.kotest.inspectors.forAll
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
-import it.czerwinski.kotlin.util.Right
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import mu.Appender
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
+@ExperimentalCoroutinesApi
 class DebugTest {
     private val appender = CacheAppender()
 
@@ -21,29 +23,26 @@ class DebugTest {
 
     private val parameters = Parameters.Map(
         "text" to Parameters.String("some text"),
-        "boolean" to Parameters.Boolean(true),
         "integer" to Parameters.Integer(30),
         "list" to Parameters.List(
             Parameters.String("list item"),
-            Parameters.Boolean(false),
             Parameters.Integer(4),
         ),
         "map" to Parameters.Map(
             "another text" to Parameters.String("map item"),
-            "another boolean" to Parameters.Boolean(true),
             "another integer" to Parameters.Integer(9),
         ),
     )
 
     @Test
-    fun `Doesn't update map`() {
+    fun `Doesn't update map`() = runTest {
         val result = Debug.run(parameters)
 
-        result.shouldBe(Right(emptyMap()))
+        result.shouldBe(Either.Right(emptyMap()))
     }
 
     @Test
-    fun `Outputs parameters`() {
+    fun `Outputs parameters`() = runTest {
         Debug.run(parameters)
 
         val log = appender.messages.joinToString("\n")
@@ -53,7 +52,6 @@ class DebugTest {
 
     private fun checkContents(log: String, parameters: Parameters) {
         when (parameters) {
-            is Parameters.Boolean -> log.shouldContain(parameters.value.toString())
             is Parameters.Integer -> log.shouldContain(parameters.value.toString())
             is Parameters.List ->
                 parameters.value.forAll {

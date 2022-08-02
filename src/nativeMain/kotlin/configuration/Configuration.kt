@@ -1,8 +1,8 @@
 package configuration
 
-import engine.Properties
 import configuration.installation.Installation
 import configuration.installation.JobId
+import engine.Properties
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 

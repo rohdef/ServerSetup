@@ -1,8 +1,7 @@
 package configuration
 
+import arrow.core.Either
 import io.kotest.matchers.shouldBe
-import it.czerwinski.kotlin.util.Left
-import it.czerwinski.kotlin.util.Right
 import kotlin.test.Test
 
 class ParametersTest {
@@ -12,10 +11,7 @@ class ParametersTest {
             "age as string" to Parameters.String("4"),
 
             "truthful" to Parameters.String("no way in this life"),
-            "truthful as boolean" to Parameters.Boolean(true),
-
-            "enabled" to Parameters.Boolean(true),
-            "enabled items" to Parameters.List(),
+            "truthful as boolean" to Parameters.Integer(0),
 
             "shopping" to Parameters.List(
                 Parameters.String("Plantgurt"),
@@ -27,9 +23,9 @@ class ParametersTest {
             ),
 
             "permissions" to Parameters.Map(
-                "read" to Parameters.Boolean(true),
-                "write" to Parameters.Boolean(false),
-                "execute" to Parameters.Boolean(true),
+                "read" to Parameters.String("true"),
+                "write" to Parameters.String("false"),
+                "execute" to Parameters.String("true"),
             ),
             "permissions numbered" to Parameters.Integer(5),
         )
@@ -38,7 +34,7 @@ class ParametersTest {
         fun `integer value`() {
             val integer = inputMap.integerValue("age")
 
-            integer.shouldBe(Right(4))
+            integer.shouldBe(Either.Right(4))
         }
 
         @Test
@@ -46,7 +42,7 @@ class ParametersTest {
             val integer = inputMap.integerValue("old age")
 
             integer.shouldBe(
-                Left(
+                Either.Left(
                     ParameterError.UnknownKey("old age", inputMap.value.keys)
                 )
             )
@@ -57,7 +53,7 @@ class ParametersTest {
             val integer = inputMap.integerValue("age as string")
 
             integer.shouldBe(
-                Left(
+                Either.Left(
                     ParameterError.WrongType(
                         "age as string",
                         Parameters.Integer::class,
@@ -71,14 +67,14 @@ class ParametersTest {
         fun `integer value with default`() {
             val integer = inputMap.integerValue("age", 101)
 
-            integer.shouldBe(Right(4))
+            integer.shouldBe(Either.Right(4))
         }
 
         @Test
         fun `missing integer with default`() {
             val integer = inputMap.integerValue("old age", 101)
 
-            integer.shouldBe(Right(101))
+            integer.shouldBe(Either.Right(101))
         }
 
         @Test
@@ -86,7 +82,7 @@ class ParametersTest {
             val integer = inputMap.integerValue("age as string")
 
             integer.shouldBe(
-                Left(
+                Either.Left(
                     ParameterError.WrongType(
                         "age as string",
                         Parameters.Integer::class,
@@ -100,7 +96,7 @@ class ParametersTest {
         fun `string value`() {
             val string = inputMap.stringValue("truthful")
 
-            string.shouldBe(Right("no way in this life"))
+            string.shouldBe(Either.Right("no way in this life"))
         }
 
         @Test
@@ -108,7 +104,7 @@ class ParametersTest {
             val string = inputMap.stringValue("truthful liar")
 
             string.shouldBe(
-                Left(
+                Either.Left(
                     ParameterError.UnknownKey("truthful liar", inputMap.value.keys)
                 )
             )
@@ -119,11 +115,11 @@ class ParametersTest {
             val string = inputMap.stringValue("truthful as boolean")
 
             string.shouldBe(
-                Left(
+                Either.Left(
                     ParameterError.WrongType(
                         "truthful as boolean",
                         Parameters.String::class,
-                        Parameters.Boolean::class,
+                        Parameters.Integer::class,
                     )
                 )
             )
@@ -133,14 +129,14 @@ class ParametersTest {
         fun `string value with default`() {
             val string = inputMap.stringValue("truthful", "always tell the truth")
 
-            string.shouldBe(Right("no way in this life"))
+            string.shouldBe(Either.Right("no way in this life"))
         }
 
         @Test
         fun `missing string with default`() {
             val string = inputMap.stringValue("truthful liar", "always tell the truth")
 
-            string.shouldBe(Right("always tell the truth"))
+            string.shouldBe(Either.Right("always tell the truth"))
         }
 
         @Test
@@ -148,73 +144,11 @@ class ParametersTest {
             val string = inputMap.stringValue("truthful as boolean", "always tell the truth")
 
             string.shouldBe(
-                Left(
+                Either.Left(
                     ParameterError.WrongType(
                         "truthful as boolean",
                         Parameters.String::class,
-                        Parameters.Boolean::class,
-                    )
-                )
-            )
-        }
-
-        @Test
-        fun `boolean value`() {
-            val boolean = inputMap.booleanValue("enabled")
-
-            boolean.shouldBe(Right(true))
-        }
-
-        @Test
-        fun `missing boolean`() {
-            val boolean = inputMap.booleanValue("enabled after dark")
-
-            boolean.shouldBe(
-                Left(
-                    ParameterError.UnknownKey("enabled after dark", inputMap.value.keys)
-                )
-            )
-        }
-
-        @Test
-        fun `type is not boolean`() {
-            val boolean = inputMap.booleanValue("enabled items")
-
-            boolean.shouldBe(
-                Left(
-                    ParameterError.WrongType(
-                        "enabled items",
-                        Parameters.Boolean::class,
-                        Parameters.List::class,
-                    )
-                )
-            )
-        }
-
-        @Test
-        fun `boolean value with default`() {
-            val boolean = inputMap.booleanValue("enabled", false)
-
-            boolean.shouldBe(Right(true))
-        }
-
-        @Test
-        fun `missing boolean with default`() {
-            val boolean = inputMap.booleanValue("enabled after dark", true)
-
-            boolean.shouldBe(Right(true))
-        }
-
-        @Test
-        fun `type is not boolean with default`() {
-            val boolean = inputMap.booleanValue("enabled items", false)
-
-            boolean.shouldBe(
-                Left(
-                    ParameterError.WrongType(
-                        "enabled items",
-                        Parameters.Boolean::class,
-                        Parameters.List::class,
+                        Parameters.Integer::class,
                     )
                 )
             )
@@ -225,7 +159,7 @@ class ParametersTest {
             val list = inputMap.listValue("shopping")
 
             list.shouldBe(
-                Right(
+                Either.Right(
                     listOf(
                         Parameters.String("Plantgurt"),
                         Parameters.Integer(3),
@@ -238,7 +172,7 @@ class ParametersTest {
         fun `missing list`() {
             val list = inputMap.listValue("shopping fashion")
 
-            list.shouldBe(Right(emptyList()))
+            list.shouldBe(Either.Right(emptyList()))
         }
 
         @Test
@@ -246,7 +180,7 @@ class ParametersTest {
             val list = inputMap.listValue("shopping grouped")
 
             list.shouldBe(
-                Left(
+                Either.Left(
                     ParameterError.WrongType(
                         "shopping grouped",
                         Parameters.List::class,
@@ -262,11 +196,12 @@ class ParametersTest {
             val map = inputMap.mapValue("permissions")
 
             map.shouldBe(
-                Right(
+                Either.Right(
                     mapOf(
-                        "read" to Parameters.Boolean(true),
-                        "write" to Parameters.Boolean(false),
-                        "execute" to Parameters.Boolean(true),
+                        // TODO enum?
+                        "read" to Parameters.String("true"),
+                        "write" to Parameters.String("false"),
+                        "execute" to Parameters.String("true"),
                     )
                 )
             )
@@ -276,7 +211,7 @@ class ParametersTest {
         fun `missing map`() {
             val map = inputMap.mapValue("permissions windows")
 
-            map.shouldBe(Right(emptyMap()))
+            map.shouldBe(Either.Right(emptyMap()))
         }
 
         @Test
@@ -284,7 +219,7 @@ class ParametersTest {
             val map = inputMap.mapValue("permissions numbered")
 
             map.shouldBe(
-                Left(
+                Either.Left(
                     ParameterError.WrongType(
                         "permissions numbered",
                         Parameters.Map::class,

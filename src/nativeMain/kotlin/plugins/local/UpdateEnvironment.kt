@@ -1,28 +1,25 @@
 package plugins.local
 
+import arrow.core.Either
+import arrow.core.flatMap
 import configuration.Parameters
 import engine.EngineError
 import engine.EnvironmentUpdates
 import plugins.StepAction
-import it.czerwinski.kotlin.util.Either
-import it.czerwinski.kotlin.util.Left
-import it.czerwinski.kotlin.util.Right
-import it.czerwinski.kotlin.util.flatMap
 
 object UpdateEnvironment : StepAction {
-    override fun run(
+    override suspend fun run(
         parameters: Parameters.Map,
     ): Either<UpdateEnvironmentError, EnvironmentUpdates> {
         return parameters.value.asSequence()
-            .fold(Right(emptyMap<String, String>()) as Either<UpdateEnvironmentError, EnvironmentUpdates>) { acc, entry ->
+            .fold(Either.Right(emptyMap<String, String>()) as Either<UpdateEnvironmentError, EnvironmentUpdates>) { acc, entry ->
                 acc.flatMap {
                     val parameter = entry.value
                     when (parameter) {
-                        is Parameters.Boolean -> Right(it + (entry.key to parameter.value.toString()))
-                        is Parameters.Integer -> Right(it + (entry.key to parameter.value.toString()))
-                        is Parameters.List -> Left(UpdateEnvironmentError.ListNotAllowed(entry.key))
-                        is Parameters.Map -> Left(UpdateEnvironmentError.MapNotAllowed(entry.key))
-                        is Parameters.String -> Right(it + (entry.key to parameter.value))
+                        is Parameters.Integer -> Either.Right(it + (entry.key to parameter.value.toString()))
+                        is Parameters.List -> Either.Left(UpdateEnvironmentError.ListNotAllowed(entry.key))
+                        is Parameters.Map -> Either.Left(UpdateEnvironmentError.MapNotAllowed(entry.key))
+                        is Parameters.String -> Either.Right(it + (entry.key to parameter.value))
                     }
                 }
             }

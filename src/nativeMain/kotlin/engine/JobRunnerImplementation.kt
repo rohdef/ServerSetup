@@ -1,10 +1,8 @@
 package engine
 
+import arrow.core.Either
+import arrow.core.flatMap
 import configuration.installation.Job
-import it.czerwinski.kotlin.util.Either
-import it.czerwinski.kotlin.util.Left
-import it.czerwinski.kotlin.util.Right
-import it.czerwinski.kotlin.util.flatMap
 import mu.KotlinLogging
 
 class JobRunnerImplementation(
@@ -12,10 +10,10 @@ class JobRunnerImplementation(
 ) : JobRunner {
     private val logger = KotlinLogging.logger {}
 
-    override fun run(job: Job, initialEnvironment: Environment): Either<EngineError, Environment> {
+    override suspend fun run(job: Job, initialEnvironment: Environment): Either<EngineError, Environment> {
         logger.info { "Running job: ${job.name}" }
 
-        val initial: Either<EngineError, Environment> = Right(initialEnvironment)
+        val initial: Either<EngineError, Environment> = Either.Right(initialEnvironment)
         val finalEnvironment = job.steps.fold(initial) { environment, step ->
             environment.flatMap { env ->
                 stepRunner.run(step, env).map { updates ->
@@ -25,8 +23,8 @@ class JobRunnerImplementation(
         }
 
         when (finalEnvironment) {
-            is Left -> logger.error { "Could not perform all jobs: ${finalEnvironment.value}" }
-            is Right -> logger.info { "Successfully ran: ${job.name}" }
+            is Either.Left -> logger.error { "Could not perform all jobs: ${finalEnvironment.value}" }
+            is Either.Right -> logger.info { "Successfully ran: ${job.name}" }
         }
 
         return finalEnvironment

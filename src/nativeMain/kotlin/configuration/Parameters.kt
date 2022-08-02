@@ -1,8 +1,6 @@
 package configuration
 
-import it.czerwinski.kotlin.util.Either
-import it.czerwinski.kotlin.util.Left
-import it.czerwinski.kotlin.util.Right
+import arrow.core.Either
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
@@ -43,16 +41,6 @@ sealed interface Parameters {
                 .map { it.value }
         }
 
-        fun booleanValue(key: kotlin.String): Either<ParameterError, kotlin.Boolean> {
-            return getValue(key, Boolean::class)
-                .map { it.value }
-        }
-
-        fun booleanValue(key: kotlin.String, default: kotlin.Boolean): Either<ParameterError, kotlin.Boolean> {
-            return getValue(key, Boolean(default), Boolean::class)
-                .map { it.value }
-        }
-
         fun listValue(key: kotlin.String): Either<ParameterError, kotlin.collections.List<Parameters>> {
             return getValue(key, List(), List::class)
                 .map { it.value }
@@ -67,9 +55,9 @@ sealed interface Parameters {
             val parameter = value[key]
 
             return when {
-                kClass.isInstance(parameter) -> Right(kClass.cast(parameter))
-                parameter == null -> Left(ParameterError.UnknownKey(key, value.keys))
-                else -> Left(ParameterError.WrongType(key, kClass, parameter::class))
+                kClass.isInstance(parameter) -> Either.Right(kClass.cast(parameter))
+                parameter == null -> Either.Left(ParameterError.UnknownKey(key, value.keys))
+                else -> Either.Left(ParameterError.WrongType(key, kClass, parameter::class))
             }
         }
 
@@ -77,9 +65,9 @@ sealed interface Parameters {
             val parameter = value[key]
 
             return when {
-                kClass.isInstance(parameter) -> Right(parameter as T)
-                parameter == null -> Right(default)
-                else -> Left(ParameterError.WrongType(key, kClass, parameter::class))
+                kClass.isInstance(parameter) -> Either.Right(parameter as T)
+                parameter == null -> Either.Right(default)
+                else -> Either.Left(ParameterError.WrongType(key, kClass, parameter::class))
             }
         }
 
@@ -88,9 +76,6 @@ sealed interface Parameters {
 
     @kotlinx.serialization.Serializable(with = StringParameterSerializer::class)
     data class String(val value: kotlin.String) : Parameters
-
-    @kotlinx.serialization.Serializable
-    data class Boolean(val value: kotlin.Boolean) : Parameters
 }
 
 sealed interface ParameterError {
@@ -127,7 +112,6 @@ abstract class BaseParametersSerializer<T : Parameters> : KSerializer<T> {
 
         is Parameters.Integer -> JsonPrimitive(value.value)
         is Parameters.String -> JsonPrimitive(value.value)
-        is Parameters.Boolean -> JsonPrimitive(value.value)
     }
 
     override fun deserialize(decoder: Decoder): T {
@@ -154,7 +138,6 @@ object ParametersSerializer : BaseParametersSerializer<Parameters>() {
     private fun fixPrimitive(primitive: JsonPrimitive): Parameters {
         return when {
             primitive.isString -> StringParameterSerializer.deserializeJson(primitive)
-            listOf("true", "false").contains(primitive.content) -> BooleanParameterSerializer.deserializeJson(primitive)
             else -> IntegerParameterSerializer.deserializeJson(primitive)
         }
     }
@@ -177,15 +160,6 @@ object IntegerParameterSerializer : BaseParametersSerializer<Parameters.Integer>
     override fun deserializeJson(jsonElement: JsonElement): Parameters.Integer {
         return when (jsonElement) {
             is JsonPrimitive -> Parameters.Integer(jsonElement.int)
-            else -> throw IllegalArgumentException("Only ints are allowed here")
-        }
-    }
-}
-
-object BooleanParameterSerializer : BaseParametersSerializer<Parameters.Boolean>() {
-    override fun deserializeJson(jsonElement: JsonElement): Parameters.Boolean {
-        return when (jsonElement) {
-            is JsonPrimitive -> Parameters.Boolean(jsonElement.boolean)
             else -> throw IllegalArgumentException("Only ints are allowed here")
         }
     }

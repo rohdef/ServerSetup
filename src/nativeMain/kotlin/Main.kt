@@ -1,16 +1,17 @@
 import configuration.Arguments
 import configuration.Configuration
+import engine.JobRunnerImplementation
+import engine.Runners
+import engine.StepRunnerImplementation
+import engine.VariableParser
+import kotlinx.coroutines.runBlocking
+import mu.KotlinLogging
+import plugins.ActionId
 import plugins.local.Debug
 import plugins.local.UpdateEnvironment
 import plugins.remote.InstallRecipeRunner
 import plugins.remote.Reboot
 import plugins.remote.RunRecipe
-import engine.JobRunnerImplementation
-import engine.Runners
-import engine.StepRunnerImplementation
-import engine.VariableParser
-import mu.KotlinLogging
-import plugins.ActionId
 
 private val logger = KotlinLogging.logger {}
 
@@ -33,13 +34,15 @@ fun main(cliArguments: Array<String>) {
     val stepRunner = StepRunnerImplementation(configuration.properties, runners, variableParser)
     val jobRunner = JobRunnerImplementation(stepRunner)
 
-    // TODO separate into own engine (or JobRunner?)
-    // TODO fix ordered map
-    configuration.installation.jobs
-        .filter { configuration.jobsToRun.accept(it.key) }
-        .forEach {
-            jobRunner.run(it.value)
-        }
+    runBlocking {
+        // TODO separate into own engine (or JobRunner?)
+        // TODO fix ordered map
+        configuration.installation.jobs
+            .filter { configuration.jobsToRun.accept(it.key) }
+            .forEach {
+                jobRunner.run(it.value)
+            }
+    }
 
     logger.info { "The menu is ready and served - enjoy :)" }
 }

@@ -1,31 +1,29 @@
 package plugins.local
 
+import arrow.core.Either
 import configuration.Parameters
 import engine.EngineError
 import engine.EnvironmentUpdates
-import plugins.StepAction
-import it.czerwinski.kotlin.util.Either
-import it.czerwinski.kotlin.util.Right
 import mu.KotlinLogging
+import plugins.StepAction
 
 object Debug : StepAction {
     private val logger = KotlinLogging.logger {}
 
-    override fun run(
+    override suspend fun run(
         parameters: Parameters.Map,
     ): Either<EngineError, EnvironmentUpdates> {
         logger.info { "Debug action is run with:" }
 
         logger.info { formatParameters(parameters) }
 
-        return Right(emptyMap())
+        return Either.Right(emptyMap())
     }
 
     private fun formatParameters(parameters: Parameters, indentation: Int = 0): String {
         val indent = "  ".repeat(indentation)
 
         return when (parameters) {
-            is Parameters.Boolean -> parameters.value.toString()
             is Parameters.Integer -> parameters.value.toString()
             is Parameters.List -> {
                 val formatting = parameters.value

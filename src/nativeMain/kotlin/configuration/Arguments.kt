@@ -1,7 +1,7 @@
 package configuration
 
-import engine.Properties
 import configuration.installation.JobId
+import engine.Properties
 import kotlinx.cli.ArgParser
 import kotlinx.cli.ArgType
 import kotlinx.cli.default

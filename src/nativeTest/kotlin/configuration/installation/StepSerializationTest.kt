@@ -66,33 +66,6 @@ class StepSerializationTest {
     }
 
     @Test
-    fun `step with single boolean parameter`() {
-        val json = """
-            {
-                "name": "my amazing step",
-                "uses": "testPlugin@v3",
-                "parameters": {
-                    "myKey": true
-                }
-            }
-        """.trimIndent()
-
-        val step = Json.decodeFromString<Step>(json)
-
-        val expectedStep = Step(
-            "my amazing step",
-            ActionId("testPlugin@v3"),
-            Parameters.Map(
-                mapOf(
-                    "myKey" to Parameters.Boolean(true)
-                )
-            )
-        )
-
-        step.shouldBe(expectedStep)
-    }
-
-    @Test
     fun `step with single integer parameter`() {
         val json = """
             {

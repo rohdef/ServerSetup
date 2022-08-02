@@ -1,28 +1,26 @@
 package plugins.local
 
+import arrow.core.Either
 import configuration.Parameters
-import plugins.local.UpdateEnvironment
-import plugins.local.UpdateEnvironmentError
 import io.kotest.matchers.shouldBe
-import it.czerwinski.kotlin.util.Left
-import it.czerwinski.kotlin.util.Right
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
+@ExperimentalCoroutinesApi
 class UpdateEnvironmentTest {
     @Test
-    fun `Sends step parameters as environment updates`() {
+    fun `Sends step parameters as environment updates`() = runTest {
         val parameters = Parameters.Map(
             "something" to Parameters.String("else"),
-            "enable" to Parameters.Boolean(true),
             "issues" to Parameters.Integer(37),
         )
 
         val result = UpdateEnvironment.run(parameters)
 
-        val expected = Right(
+        val expected = Either.Right(
             mapOf(
                 "something" to "else",
-                "enable" to "true",
                 "issues" to "37",
             )
         )
@@ -30,7 +28,7 @@ class UpdateEnvironmentTest {
     }
 
     @Test
-    fun `Does not allow maps`() {
+    fun `Does not allow maps`() = runTest {
         val parameters = Parameters.Map(
             "parameters" to Parameters.Map(
                 "age" to Parameters.String("37"),
@@ -40,12 +38,12 @@ class UpdateEnvironmentTest {
 
         val result = UpdateEnvironment.run(parameters)
 
-        val expected = Left(UpdateEnvironmentError.MapNotAllowed("parameters"))
+        val expected = Either.Left(UpdateEnvironmentError.MapNotAllowed("parameters"))
         result.shouldBe(expected)
     }
 
     @Test
-    fun `Does not allow lists`() {
+    fun `Does not allow lists`() = runTest {
         val parameters = Parameters.Map(
             "something" to Parameters.List(
                 Parameters.String("Postman"),
@@ -55,7 +53,7 @@ class UpdateEnvironmentTest {
 
         val result = UpdateEnvironment.run(parameters)
 
-        val expected = Left(UpdateEnvironmentError.ListNotAllowed("something"))
+        val expected = Either.Left(UpdateEnvironmentError.ListNotAllowed("something"))
         result.shouldBe(expected)
     }
 }

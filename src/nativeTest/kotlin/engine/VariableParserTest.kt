@@ -1,12 +1,8 @@
 package engine
 
+import arrow.core.Either
 import configuration.Parameters
-import engine.VariableParser
-import engine.VariableParserError
 import io.kotest.matchers.shouldBe
-import it.czerwinski.kotlin.util.Either
-import it.czerwinski.kotlin.util.Left
-import it.czerwinski.kotlin.util.Right
 import kotlin.test.Test
 
 class VariableParserTest {
@@ -25,7 +21,7 @@ class VariableParserTest {
 
         val newParameter = parser.parse(properties, environment, testValue)
         val expectedValue: Either<VariableParserError, String> =
-            Right(testValue)
+            Either.Right(testValue)
         newParameter.shouldBe(expectedValue)
     }
 
@@ -42,12 +38,12 @@ class VariableParserTest {
 
         val parameterFromProperties = parser.parse(properties, environment, "\$properties.hostname")
         val expectedPropertiesValue: Either<VariableParserError, String> =
-            Right(testFromProperties)
+            Either.Right(testFromProperties)
         parameterFromProperties.shouldBe(expectedPropertiesValue)
 
         val parameterFromEnvironment = parser.parse(properties, environment, "\$environment.user")
         val expectedEnvironmentValue: Either<VariableParserError, String> =
-            Right(testFromEnvironment)
+            Either.Right(testFromEnvironment)
         parameterFromEnvironment.shouldBe(expectedEnvironmentValue)
     }
 
@@ -58,12 +54,12 @@ class VariableParserTest {
 
         val parameterFromProperties = parser.parse(properties, environment, "\$properties.hostname")
         val expectedFromProperties: Either<VariableParserError, String> =
-            Left(VariableParserError.VariableNotFound("\$properties.hostname"))
+            Either.Left(VariableParserError.VariableNotFound("\$properties.hostname"))
         parameterFromProperties.shouldBe(expectedFromProperties)
 
         val parameterFromEnvironment = parser.parse(properties, environment, "\$environment.user")
         val expectedFromEnvironment: Either<VariableParserError, String> =
-            Left(VariableParserError.VariableNotFound("\$environment.user"))
+            Either.Left(VariableParserError.VariableNotFound("\$environment.user"))
         parameterFromEnvironment.shouldBe(expectedFromEnvironment)
     }
 
@@ -82,7 +78,7 @@ class VariableParserTest {
 
         val newParameter = parser.parse(properties, environment, text)
         val expectedParameter: Either<VariableParserError, String> =
-            Right(
+            Either.Right(
                 testValue
             )
         newParameter.shouldBe(expectedParameter)
@@ -108,7 +104,7 @@ class VariableParserTest {
         )
 
         val newMap = parser.parse(properties, environment, parameters)
-        val expectedMap = Right(
+        val expectedMap = Either.Right(
             Parameters.Map(
                 "simple" to Parameters.String("dancing-queen.dk"),
                 "hide it in a list" to Parameters.List(
@@ -131,7 +127,7 @@ class VariableParserTest {
         )
 
         val newMap = parser.parse(properties, environment, parameters)
-        val expectedMap = Left(VariableParserError.VariableNotFound("\$environment.host"))
+        val expectedMap = Either.Left(VariableParserError.VariableNotFound("\$environment.host"))
         newMap.shouldBe(expectedMap)
     }
 }

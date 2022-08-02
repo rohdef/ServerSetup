@@ -1,17 +1,18 @@
 package engine
 
-import engine.JobRunnerImplementation
+import arrow.core.Either
 import configuration.installation.Job
 import configuration.installation.Step
-import plugins.ActionId
 import io.kotest.matchers.shouldBe
-import it.czerwinski.kotlin.util.Left
-import it.czerwinski.kotlin.util.Right
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import mocks.NextResult
 import mocks.TestError
 import mocks.engine.TestStepRunner
+import plugins.ActionId
 import kotlin.test.Test
 
+@ExperimentalCoroutinesApi
 class JobRunnerTest {
     private val stepRunner = TestStepRunner()
     private val jobRunner = JobRunnerImplementation(
@@ -28,24 +29,24 @@ class JobRunnerTest {
     )
 
     @Test
-    fun `Standard run`() {
+    fun `Standard run`() = runTest {
         val result = jobRunner.run(job)
 
-        result.shouldBe(Right(emptyMap()))
+        result.shouldBe(Either.Right(emptyMap()))
     }
 
     @Test
-    fun `Handle job with errors`() {
+    fun `Handle job with errors`() = runTest {
         val expectedFailure = TestError
         stepRunner.nextResult = NextResult.Failure(expectedFailure)
 
         val result = jobRunner.run(job)
 
-        result.shouldBe(Left(expectedFailure))
+        result.shouldBe(Either.Left(expectedFailure))
     }
 
     @Test
-    fun `Environment is updated correctly`() {
+    fun `Environment is updated correctly`() = runTest {
         val initialEnvironment = mapOf(
             "do not touch" to "leave me alove",
             "change me" to "this is the old value",
@@ -68,6 +69,6 @@ class JobRunnerTest {
             "first new value" to "hi, my name is (Slim Shady?)",
             "second new value" to "let's get started",
         )
-        result.shouldBe(Right(expectedEnvironment))
+        result.shouldBe(Either.Right(expectedEnvironment))
     }
 }
