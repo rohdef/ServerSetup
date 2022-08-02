@@ -286,7 +286,7 @@ class ParametersTest {
 
             map.shouldBe(
                 Either.Right(
-                    mapOf(
+                    Parameters.Map(
                         // TODO enum?
                         "read" to Parameters.String("true"),
                         "write" to Parameters.String("false"),
@@ -300,7 +300,9 @@ class ParametersTest {
         fun `missing map`() {
             val map = inputMap.mapValue("permissions windows")
 
-            map.shouldBe(Either.Right(emptyMap()))
+            map.shouldBe(
+                Either.Right(Parameters.Map())
+            )
         }
 
         @Test

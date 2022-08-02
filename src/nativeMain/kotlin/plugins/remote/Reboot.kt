@@ -50,34 +50,46 @@ object Reboot : StepAction {
     }
 
     data class Configuration(
-        val hostname: String,
+        val host: Host,
         val username: String,
-        val port: Int,
-        val waitForSystem: WaitForSystem,
+        val waitForReboot: WaitForReboot,
         val scriptPath: String,
     ) {
         companion object {
             suspend fun create(parameters: Parameters.Map): Either<ParameterError, Configuration> {
                 return either {
-                    val hostname = parameters.stringValue("hostname")
+                    val host = parameters.mapValue("host")
+                        .map {
+                            val hostname = it.stringValue("hostname")
+                            val port = it.integerValue("port", 22)
+
+                            Host(
+                                hostname.bind(),
+                                port.bind()
+                            )
+                        }
+
                     val username = parameters.stringValue("username")
-                    val port = parameters.integerValue("port", 22)
-                    val wait = parameters.enumValue("wait", WaitForSystem.DO_NOT_WAIT)
+                    val wait = parameters.enumValue("waitForReboot", WaitForReboot.DO_NOT_WAIT)
                     val scriptPath = parameters.stringValue("scriptPath", "blah")
 
                     Configuration(
-                        hostname.bind(),
+                        host.bind(),
                         username.bind(),
-                        port.bind(),
                         wait.bind(),
                         scriptPath.bind(),
                     )
                 }
             }
         }
+
+        data class Host(
+            val hostname: String,
+            val port: Int,
+        )
     }
 
-    enum class WaitForSystem {
+    enum class WaitForReboot {
         WAIT,
         DO_NOT_WAIT,
     }

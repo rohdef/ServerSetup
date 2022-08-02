@@ -77,9 +77,8 @@ sealed interface Parameters {
                 .map { it.value }
         }
 
-        fun mapValue(key: kotlin.String): Either<ParameterError, kotlin.collections.Map<kotlin.String, Parameters>> {
+        fun mapValue(key: kotlin.String): Either<ParameterError, Map> {
             return getValue(key, Map(), Map::class)
-                .map { it.value }
         }
 
         private fun <T : Parameters> getValue(key: kotlin.String, kClass: KClass<T>): Either<ParameterError, T> {
