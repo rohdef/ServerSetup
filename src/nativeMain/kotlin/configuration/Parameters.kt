@@ -1,11 +1,14 @@
 package configuration
 
 import arrow.core.Either
+import arrow.core.flatMap
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
+import utilities.EnumError
+import utilities.Enums
 import kotlin.reflect.KClass
 import kotlin.reflect.cast
 
@@ -29,6 +32,34 @@ sealed interface Parameters {
         fun integerValue(key: kotlin.String, default: Int): Either<ParameterError, Int> {
             return getValue(key, Integer(default), Integer::class)
                 .map { it.value }
+        }
+
+        inline fun <reified T : Enum<T>> enumValue(key: kotlin.String): Either<ParameterError, T> {
+            return stringValue(key)
+                .map { Enums.enumValue<T>(it) }
+                .flatMap {
+                    it.mapLeft {
+                        when (it) {
+                            is EnumError.CannotParseToEnum<*> -> ParameterError.InvalidValue<T>(
+                                key,
+                                listOf(*enumValues()),
+                                it.attemptedValue
+                            )
+                        }
+                    }
+                }
+        }
+
+        inline fun <reified T : Enum<T>> enumValue(key: kotlin.String, default: T): Either<ParameterError, T> {
+            val enum = enumValue<T>(key)
+            return when (enum) {
+                is Either.Right -> enum
+                is Either.Left ->
+                    when (enum.value) {
+                        is ParameterError.UnknownKey -> Either.Right(default)
+                        else -> enum
+                    }
+            }
         }
 
         fun stringValue(key: kotlin.String): Either<ParameterError, kotlin.String> {
@@ -61,7 +92,11 @@ sealed interface Parameters {
             }
         }
 
-        private fun <T : Parameters> getValue(key: kotlin.String, default: T, kClass: KClass<T>): Either<ParameterError, T> {
+        private fun <T : Parameters> getValue(
+            key: kotlin.String,
+            default: T,
+            kClass: KClass<T>
+        ): Either<ParameterError, T> {
             val parameter = value[key]
 
             return when {
@@ -88,6 +123,12 @@ sealed interface ParameterError {
         val key: String,
         val expectedType: KClass<out Parameters>,
         val actualType: KClass<out Parameters>,
+    ) : ParameterError
+
+    data class InvalidValue<T>(
+        val key: String,
+        val expectedType: List<T>,
+        val actualType: String,
     ) : ParameterError
 }
 

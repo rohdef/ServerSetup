@@ -169,7 +169,7 @@ class ParametersTest {
 
         @Test
         fun `missing enum`() {
-            val enum = inputMap.enumValue<TestEnum>("truthful liar")
+            val enum = inputMap.enumValue<TestEnum>("missing key")
 
             enum.shouldBe(
                 Either.Left(
@@ -185,7 +185,7 @@ class ParametersTest {
             enum.shouldBe(
                 Either.Left(
                     ParameterError.WrongType(
-                        "truthful as boolean",
+                        "age",
                         Parameters.String::class,
                         Parameters.Integer::class,
                     )
@@ -201,11 +201,11 @@ class ParametersTest {
                 Either.Left(
                     ParameterError.InvalidValue(
                         "not in enum",
-                        "NOT_IN_ENUM",
                         listOf(
                             TestEnum.FOO,
                             TestEnum.BAR,
-                        )
+                        ),
+                        "NOT_IN_ENUM",
                     )
                 )
             )
@@ -215,7 +215,7 @@ class ParametersTest {
         fun `enum value with default`() {
             val enum = inputMap.enumValue<TestEnum>("enum foo", TestEnum.BAR)
 
-            enum.shouldBe(Either.Right("no way in this life"))
+            enum.shouldBe(Either.Right(TestEnum.FOO))
         }
 
         @Test
@@ -233,11 +233,11 @@ class ParametersTest {
                 Either.Left(
                     ParameterError.InvalidValue(
                         "not in enum",
-                        "NOT_IN_ENUM",
                         listOf(
                             TestEnum.FOO,
                             TestEnum.BAR,
-                        )
+                        ),
+                        "NOT_IN_ENUM",
                     )
                 )
             )

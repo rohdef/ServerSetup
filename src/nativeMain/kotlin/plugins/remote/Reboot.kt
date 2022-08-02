@@ -62,8 +62,7 @@ object Reboot : StepAction {
                     val hostname = parameters.stringValue("hostname")
                     val username = parameters.stringValue("username")
                     val port = parameters.integerValue("port", 22)
-                    val wait = parameters.stringValue("wait", "DO_NOT_WAIT")
-                        .map { WaitForSystem.valueOf(it) }
+                    val wait = parameters.enumValue("wait", WaitForSystem.DO_NOT_WAIT)
                     val scriptPath = parameters.stringValue("scriptPath", "blah")
 
                     Configuration(
