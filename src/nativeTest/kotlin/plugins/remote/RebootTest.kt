@@ -9,6 +9,7 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import mocks.utilities.TestSystemUtilities
+import plugins.remote.reboot.Reboot
 import utilities.SystemUtilityError
 import kotlin.test.Test
 
@@ -57,7 +58,42 @@ class RebootTest {
         )
     }
 
+    @Test
+    fun `Minimal configuration`() = runTest {
+        val parameters = Parameters.Map(
+            "host" to Parameters.Map(
+                "hostname" to Parameters.String("rebootable.local"),
+                "username" to Parameters.String("myuser"),
+                "password" to Parameters.String("somePassw0rd"),
+            ),
+        )
+        val configuration = Reboot.Configuration.create(parameters)
+
+        configuration.shouldBe(
+            Either.Right(
+                Reboot.Configuration(
+                    Reboot.Configuration.Host(
+                        "rebootable.local",
+                        42,
+                        "myuser",
+                        "somePassw0rd"
+                    ),
+                    Reboot.WaitForReboot.DO_NOT_WAIT,
+                    "do-configure",
+                )
+            )
+        )
+    }
+
     fun `Bad configuration`() = runTest {
+        val parameters = Parameters.Map(
+            "host" to Parameters.Map(
+                "hostname" to Parameters.String("rebootable.local"),
+                "password" to Parameters.String("somePassw0rd"),
+            ),
+        )
+        val configuration = Reboot.Configuration.create(parameters)
+
         TODO()
     }
 

@@ -10,7 +10,7 @@ import plugins.ActionId
 import plugins.local.Debug
 import plugins.local.UpdateEnvironment
 import plugins.remote.InstallRecipeRunner
-import plugins.remote.Reboot
+import plugins.remote.reboot.Reboot
 import plugins.remote.RunRecipe
 import utilities.LinuxSystemUtilities
 

@@ -1,4 +1,4 @@
-package plugins.remote
+package plugins.remote.reboot
 
 import arrow.core.Either
 import arrow.core.computations.either
