@@ -1,11 +1,10 @@
 package utilities
 
-import utilities.SystemUtilities
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 class SystemUtilitiesTest {
-    private val utilities = SystemUtilities()
+    private val utilities = LinuxSystemUtilities()
 
     @Test
     fun `Generate simple command`() {

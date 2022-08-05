@@ -2,22 +2,40 @@ package plugins.remote
 
 import arrow.core.Either
 import configuration.Parameters
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.types.shouldBeInstanceOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import utilities.SystemUtilities
+import mocks.utilities.TestSystemUtilities
+import utilities.SystemUtilityError
 import kotlin.test.Test
 
 @ExperimentalCoroutinesApi
 class RebootTest {
+    private val system = TestSystemUtilities()
+    private val reboot = Reboot(system)
+
+    init {
+        system.nextResult = Either.Left(
+            SystemUtilityError.ErrorRunningCommand(
+                "",
+                1,
+                "Connection closed by remote host",
+            )
+        )
+    }
+
     @Test
     fun `Parameters to configuration`() = runTest {
         val parameters = Parameters.Map(
             "host" to Parameters.Map(
                 "hostname" to Parameters.String("rebootable.local"),
                 "port" to Parameters.Integer(43),
+                "username" to Parameters.String("myuser"),
+                "password" to Parameters.String("somePassw0rd"),
             ),
-            "username" to Parameters.String("myuser"),
             "waitForReboot" to Parameters.String("WAIT"),
             "scriptPath" to Parameters.String("server-scripts"),
         )
@@ -28,9 +46,10 @@ class RebootTest {
                 Reboot.Configuration(
                     Reboot.Configuration.Host(
                         "rebootable.local",
-                        43
+                        43,
+                        "myuser",
+                        "somePassw0rd"
                     ),
-                    "myuser",
                     Reboot.WaitForReboot.WAIT,
                     "server-scripts",
                 )
@@ -38,22 +57,73 @@ class RebootTest {
         )
     }
 
+    fun `Bad configuration`() = runTest {
+        TODO()
+    }
+
     @Test
-    fun `executing commands`() {
-        val utilities = SystemUtilities()
-        val hmm = utilities.executeCommand(
-            "touch",
-            "/tmp/rohdef",
+    fun `Run reboot command`() = runTest {
+        val parameters = Parameters.Map(
+            "host" to Parameters.Map(
+                "hostname" to Parameters.String("rebootable.local"),
+                "username" to Parameters.String("myuser"),
+                "password" to Parameters.String("somePassw0rd"),
+            ),
+            "waitForReboot" to Parameters.String("DO_NOT_WAIT"),
         )
-        println("Ran: ")
-        println(hmm)
 
-        val hm = utilities.executeCommand("export BLAH=\"John\"; echo \"hi there\${BLAH}\" >> /tmp/rohdef")
-        println("Ran: ")
-        println(hm)
+        val result = reboot.run(parameters)
+        result.shouldBeInstanceOf<Either.Right<*>>()
 
-        val h = utilities.executeCommand("cat", "/tmp/rohdef")
-        println("read")
-        println(h)
+        val expectedCommand = "shutdown"
+        val expectedParameterReboot = "-r"
+        val expectedParameterNow = "now"
+
+        val relevantExecutions = system.executions
+            .filter { it.command.contains(expectedCommand) }
+        relevantExecutions.shouldHaveSize(1)
+
+        val relevantCommand = relevantExecutions.first().command
+        relevantCommand.shouldContain(expectedParameterReboot)
+        relevantCommand.shouldContain(expectedParameterNow)
+    }
+
+    @Test
+    fun `Attempt to connect if wait`() = runTest {
+        val parameters = Parameters.Map(
+            "host" to Parameters.Map(
+                "hostname" to Parameters.String("rebootable.local"),
+            ),
+            "username" to Parameters.String("myuser"),
+            "waitForReboot" to Parameters.String("WAIT"),
+        )
+
+        TODO()
+    }
+
+    @Test
+    fun `Do not attempt to connect if not waiting`() = runTest {
+        val parameters = Parameters.Map(
+            "host" to Parameters.Map(
+                "hostname" to Parameters.String("rebootable.local"),
+            ),
+            "username" to Parameters.String("myuser"),
+            "waitForReboot" to Parameters.String("DO_NOT_WAIT"),
+        )
+
+        TODO()
+    }
+
+    @Test
+    fun `Give up after 30 connection attempts`() = runTest {
+        val parameters = Parameters.Map(
+            "host" to Parameters.Map(
+                "hostname" to Parameters.String("rebootable.local"),
+            ),
+            "username" to Parameters.String("myuser"),
+            "waitForReboot" to Parameters.String("WAIT"),
+        )
+
+        TODO()
     }
 }
