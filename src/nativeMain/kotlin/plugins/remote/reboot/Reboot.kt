@@ -17,7 +17,8 @@ import utilities.SystemUtilities
 import utilities.SystemUtilityError
 
 class Reboot(
-    private val system: SystemUtilities
+    private val system: SystemUtilities,
+    private val socketFactory: SocketFactory
 ) : StepAction {
     private val logger = KotlinLogging.logger {}
 
@@ -51,12 +52,11 @@ class Reboot(
 
             // TODO WAIT
             // TODO look into Dispatcher.IO?
-            val selectorManager = SelectorManager()
-            val socketResponse = aSocket(selectorManager)
-                .tcp()
-                .connect(configuration.host.hostname, configuration.host.port)
+            val socketResponse = socketFactory
+                .tcpConnect(configuration.host.hostname, configuration.host.port)
                 .use {
-                    it.openReadChannel().readUTF8Line()!!
+                    it.openReadChannel()
+                        .readUTF8Line()!!
                 }
 
             logger.info { "Got a socket response: $socketResponse" }

@@ -1,4 +1,4 @@
-package plugins.remote
+package plugins.remote.reboot
 
 import arrow.core.Either
 import configuration.Parameters
@@ -9,14 +9,14 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import mocks.utilities.TestSystemUtilities
-import plugins.remote.reboot.Reboot
 import utilities.SystemUtilityError
 import kotlin.test.Test
 
 @ExperimentalCoroutinesApi
 class RebootTest {
+    private val socketFactory = TestSockets()
     private val system = TestSystemUtilities()
-    private val reboot = Reboot(system)
+    private val reboot = Reboot(system, socketFactory)
 
     init {
         system.nextResult = Either.Left(
@@ -74,7 +74,7 @@ class RebootTest {
                 Reboot.Configuration(
                     Reboot.Configuration.Host(
                         "rebootable.local",
-                        42,
+                        22,
                         "myuser",
                         "somePassw0rd"
                     ),
@@ -129,12 +129,14 @@ class RebootTest {
         val parameters = Parameters.Map(
             "host" to Parameters.Map(
                 "hostname" to Parameters.String("rebootable.local"),
+                "username" to Parameters.String("myuser"),
+                "password" to Parameters.String("somePassw0rd"),
             ),
-            "username" to Parameters.String("myuser"),
             "waitForReboot" to Parameters.String("WAIT"),
         )
 
-        TODO()
+        val result = reboot.run(parameters)
+        result.shouldBeInstanceOf<Either.Right<*>>()
     }
 
     @Test
