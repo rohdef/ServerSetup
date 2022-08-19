@@ -1,15 +1,20 @@
 package plugins.remote.reboot
 
 import arrow.core.Either
+import configuration.ParameterError
 import configuration.Parameters
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.maps.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.ktor.network.sockets.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import mocks.utilities.TestSystemUtilities
 import utilities.SystemUtilityError
+import kotlin.test.Ignore
 import kotlin.test.Test
 
 @ExperimentalCoroutinesApi
@@ -40,12 +45,12 @@ class RebootTest {
             "waitForReboot" to Parameters.String("WAIT"),
             "scriptPath" to Parameters.String("server-scripts"),
         )
-        val configuration = Reboot.Configuration.create(parameters)
+        val configuration = Configuration.create(parameters)
 
         configuration.shouldBe(
             Either.Right(
-                Reboot.Configuration(
-                    Reboot.Configuration.Host(
+                Configuration(
+                    Configuration.Host(
                         "rebootable.local",
                         43,
                         "myuser",
@@ -67,12 +72,12 @@ class RebootTest {
                 "password" to Parameters.String("somePassw0rd"),
             ),
         )
-        val configuration = Reboot.Configuration.create(parameters)
+        val configuration = Configuration.create(parameters)
 
         configuration.shouldBe(
             Either.Right(
-                Reboot.Configuration(
-                    Reboot.Configuration.Host(
+                Configuration(
+                    Configuration.Host(
                         "rebootable.local",
                         22,
                         "myuser",
@@ -85,6 +90,7 @@ class RebootTest {
         )
     }
 
+    @Test
     fun `Bad configuration`() = runTest {
         val parameters = Parameters.Map(
             "host" to Parameters.Map(
@@ -92,9 +98,14 @@ class RebootTest {
                 "password" to Parameters.String("somePassw0rd"),
             ),
         )
-        val configuration = Reboot.Configuration.create(parameters)
+        val configuration = Configuration.create(parameters)
 
-        TODO()
+        val expected = Either.Left(
+            ParameterError.UnknownKey(
+                "username",
+            )
+        )
+        configuration.shouldBe(expected)
     }
 
     @Test
@@ -137,6 +148,13 @@ class RebootTest {
 
         val result = reboot.run(parameters)
         result.shouldBeInstanceOf<Either.Right<*>>()
+
+        val expectedAddress = InetSocketAddress("rebootable.local", 22)
+        socketFactory.generatedSockets.keys
+            .shouldContainExactly(setOf(expectedAddress))
+
+        val sockets = socketFactory.generatedSockets[expectedAddress]!!
+        sockets.shouldHaveSize(1)
     }
 
     @Test
@@ -144,15 +162,20 @@ class RebootTest {
         val parameters = Parameters.Map(
             "host" to Parameters.Map(
                 "hostname" to Parameters.String("rebootable.local"),
+                "username" to Parameters.String("myuser"),
+                "password" to Parameters.String("somePassw0rd"),
             ),
-            "username" to Parameters.String("myuser"),
             "waitForReboot" to Parameters.String("DO_NOT_WAIT"),
         )
 
-        TODO()
+        val result = reboot.run(parameters)
+        result.shouldBeInstanceOf<Either.Right<*>>()
+
+        socketFactory.generatedSockets.shouldBeEmpty()
     }
 
     @Test
+    @Ignore
     fun `Give up after 30 connection attempts`() = runTest {
         val parameters = Parameters.Map(
             "host" to Parameters.Map(
@@ -162,6 +185,6 @@ class RebootTest {
             "waitForReboot" to Parameters.String("WAIT"),
         )
 
-        TODO()
+        TODO("Not currently possible, feature is not supported by ktor yet: https://youtrack.jetbrains.com/issue/KTOR-4728")
     }
 }

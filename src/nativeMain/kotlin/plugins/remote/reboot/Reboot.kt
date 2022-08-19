@@ -2,11 +2,8 @@ package plugins.remote.reboot
 
 import arrow.core.Either
 import arrow.core.computations.either
-import configuration.ParameterError
 import configuration.Parameters
-import engine.EngineError
 import engine.EnvironmentUpdates
-import io.ktor.network.selector.*
 import io.ktor.network.sockets.*
 import io.ktor.utils.io.*
 import io.ktor.utils.io.core.*
@@ -81,78 +78,25 @@ class Reboot(
         }
     }
 
-    data class Configuration(
-        val host: Host,
-        val waitForReboot: WaitForReboot,
-        val scriptPath: String,
-    ) {
-        companion object {
-            suspend fun create(parameters: Parameters.Map): Either<ParameterError, Configuration> {
-                return either {
-                    val host = parameters.mapValue("host")
-                        .map {
-                            val hostname = it.stringValue("hostname")
-                            val port = it.integerValue("port", 22)
-                            val username = it.stringValue("username")
-                            val password = it.stringValue("password")
-
-                            Host(
-                                hostname.bind(),
-                                port.bind(),
-                                username.bind(),
-                                password.bind(),
-                            )
-                        }
-
-                    val wait = parameters.enumValue("waitForReboot", WaitForReboot.DO_NOT_WAIT)
-                    val scriptPath = parameters.stringValue("scriptPath", "do-configure")
-
-                    Configuration(
-                        host.bind(),
-                        wait.bind(),
-                        scriptPath.bind(),
-                    )
-                }
-            }
-        }
-
-        data class Host(
-            val hostname: String,
-            val port: Int,
-            val username: String,
-            val password: String,
+    private fun SystemUtilities.executeSshCommand(
+        host: Configuration.Host,
+        command: String,
+    ): Either<SystemUtilityError, String> {
+        val sshPrefixed = listOf(
+            "-p",
+            host.password,
+            "ssh",
+            "${host.username}@${host.hostname}",
+            "-p",
+            "${host.port}",
+            command,
         )
+
+        return this.executeCommand("sshpass", *sshPrefixed.toTypedArray())
     }
 
     enum class WaitForReboot {
         WAIT,
         DO_NOT_WAIT,
     }
-}
-
-sealed interface RebootError : EngineError {
-    data class CannotExecuteCommand<T : SystemUtilityError>(
-        val error: T
-    ) : RebootError
-
-    data class CouldNotParseRebootConfiguration<T : ParameterError>(
-        val error: T
-    ) : RebootError
-}
-
-fun SystemUtilities.executeSshCommand(
-    host: Reboot.Configuration.Host,
-    command: String,
-): Either<SystemUtilityError, String> {
-    val sshPrefixed = listOf(
-        "-p",
-        host.password,
-        "ssh",
-        "${host.username}@${host.hostname}",
-        "-p",
-        "${host.port}",
-        command,
-    )
-
-    return this.executeCommand("sshpass", *sshPrefixed.toTypedArray())
 }

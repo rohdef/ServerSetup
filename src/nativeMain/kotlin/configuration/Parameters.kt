@@ -86,7 +86,7 @@ sealed interface Parameters {
 
             return when {
                 kClass.isInstance(parameter) -> Either.Right(kClass.cast(parameter))
-                parameter == null -> Either.Left(ParameterError.UnknownKey(key, value.keys))
+                parameter == null -> Either.Left(ParameterError.UnknownKey(key))
                 else -> Either.Left(ParameterError.WrongType(key, kClass, parameter::class))
             }
         }
@@ -115,7 +115,6 @@ sealed interface Parameters {
 sealed interface ParameterError {
     data class UnknownKey(
         val missingKey: String,
-        val validKeys: Set<String>,
     ) : ParameterError
 
     data class WrongType(

@@ -47,7 +47,7 @@ class ParametersTest {
 
             integer.shouldBe(
                 Either.Left(
-                    ParameterError.UnknownKey("old age", inputMap.value.keys)
+                    ParameterError.UnknownKey("old age")
                 )
             )
         }
@@ -109,7 +109,7 @@ class ParametersTest {
 
             string.shouldBe(
                 Either.Left(
-                    ParameterError.UnknownKey("truthful liar", inputMap.value.keys)
+                    ParameterError.UnknownKey("truthful liar")
                 )
             )
         }
@@ -173,7 +173,7 @@ class ParametersTest {
 
             enum.shouldBe(
                 Either.Left(
-                    ParameterError.UnknownKey("missing key", inputMap.value.keys)
+                    ParameterError.UnknownKey("missing key")
                 )
             )
         }
