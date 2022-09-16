@@ -48,9 +48,11 @@ kotlin {
 
         val nativeTest by getting {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
-                implementation("io.kotest:kotest-framework-engine:5.4.0")
-                implementation("io.kotest:kotest-assertions-core:5.4.0")
+                implementation(kotlin("test"))
+
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.3-native-mt")
+                implementation("io.kotest:kotest-framework-engine:5.4.2")
+                implementation("io.kotest:kotest-assertions-core:5.4.2")
             }
         }
     }
