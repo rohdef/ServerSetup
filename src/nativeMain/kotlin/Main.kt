@@ -9,7 +9,7 @@ import mu.KotlinLogging
 import plugins.ActionId
 import plugins.local.Debug
 import plugins.local.UpdateEnvironment
-import plugins.remote.InstallRecipeRunner
+import plugins.remote.install.InstallRecipeRunner
 import plugins.remote.reboot.Reboot
 import plugins.remote.RunRecipe
 import plugins.remote.reboot.KtorSockets
@@ -24,13 +24,16 @@ fun main(cliArguments: Array<String>) {
 
     val configuration = Configuration(arguments)
 
+    val systemUtilities = LinuxSystemUtilities()
     val runners = Runners(
         ActionId("debug@v1") to Debug,
         ActionId("updateEnvironment@v1") to UpdateEnvironment,
-        ActionId("installRecipeRunner@v1") to InstallRecipeRunner,
+        ActionId("installRecipeRunner@v1") to InstallRecipeRunner(
+            systemUtilities,
+        ),
         ActionId("runRecipe@v1") to RunRecipe,
         ActionId("reboot@v1") to Reboot(
-            LinuxSystemUtilities(),
+            systemUtilities,
             KtorSockets(),
         ),
     )

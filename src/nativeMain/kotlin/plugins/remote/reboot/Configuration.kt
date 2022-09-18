@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.computations.either
 import configuration.ParameterError
 import configuration.Parameters
+import plugins.remote.Host
 
 data class Configuration(
     val host: Host,
@@ -39,11 +40,4 @@ data class Configuration(
             }
         }
     }
-
-    data class Host(
-        val hostname: String,
-        val port: Int,
-        val username: String,
-        val password: String,
-    )
 }

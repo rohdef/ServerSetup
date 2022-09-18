@@ -1,20 +1,23 @@
 package plugins.remote.installRunner
 
-import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import mocks.utilities.TestSystemUtilities
+import kotlin.test.Ignore
 import kotlin.test.Test
 
 @ExperimentalCoroutinesApi
 class InstallTest {
     private val system = TestSystemUtilities()
-//    private val install = Install(system)
+
+    // TODO: 18/09/2022 rohdef - look into weird import :/
+//    private val install = plugins.remote.InstallRecipeRunner(system)
 
     @Test
+    @Ignore
     fun `Createes files and environment`() = runTest {
         val username = "user"
         val password = "pas"

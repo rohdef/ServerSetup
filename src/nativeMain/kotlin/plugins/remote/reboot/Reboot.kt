@@ -10,6 +10,7 @@ import io.ktor.utils.io.core.*
 import mu.KotlinLogging
 import platform.posix.sleep
 import plugins.StepAction
+import plugins.remote.executeSshCommand
 import utilities.SystemUtilities
 import utilities.SystemUtilityError
 
@@ -78,22 +79,7 @@ class Reboot(
         }
     }
 
-    private fun SystemUtilities.executeSshCommand(
-        host: Configuration.Host,
-        command: String,
-    ): Either<SystemUtilityError, String> {
-        val sshPrefixed = listOf(
-            "-p",
-            host.password,
-            "ssh",
-            "${host.username}@${host.hostname}",
-            "-p",
-            "${host.port}",
-            command,
-        )
 
-        return this.executeCommand("sshpass", *sshPrefixed.toTypedArray())
-    }
 
     enum class WaitForReboot {
         WAIT,

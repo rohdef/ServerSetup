@@ -13,6 +13,7 @@ import io.ktor.network.sockets.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import mocks.utilities.TestSystemUtilities
+import plugins.remote.Host
 import utilities.SystemUtilityError
 import kotlin.test.Ignore
 import kotlin.test.Test
@@ -50,7 +51,7 @@ class RebootTest {
         configuration.shouldBe(
             Either.Right(
                 Configuration(
-                    Configuration.Host(
+                    Host(
                         "rebootable.local",
                         43,
                         "myuser",
@@ -77,7 +78,7 @@ class RebootTest {
         configuration.shouldBe(
             Either.Right(
                 Configuration(
-                    Configuration.Host(
+                    Host(
                         "rebootable.local",
                         22,
                         "myuser",
