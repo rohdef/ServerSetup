@@ -9,6 +9,8 @@ import kotlin.test.Test
 
 @ExperimentalCoroutinesApi
 class UpdateEnvironmentTest {
+    private val updateEnvironment = UpdateEnvironment()
+
     @Test
     fun `Sends step parameters as environment updates`() = runTest {
         val parameters = Parameters.Map(
@@ -16,7 +18,7 @@ class UpdateEnvironmentTest {
             "issues" to Parameters.Integer(37),
         )
 
-        val result = UpdateEnvironment.run(parameters)
+        val result = updateEnvironment.run(parameters)
 
         val expected = Either.Right(
             mapOf(
@@ -36,7 +38,7 @@ class UpdateEnvironmentTest {
             ),
         )
 
-        val result = UpdateEnvironment.run(parameters)
+        val result = updateEnvironment.run(parameters)
 
         val expected = Either.Left(UpdateEnvironmentError.MapNotAllowed("parameters"))
         result.shouldBe(expected)
@@ -51,7 +53,7 @@ class UpdateEnvironmentTest {
             ),
         )
 
-        val result = UpdateEnvironment.run(parameters)
+        val result = updateEnvironment.run(parameters)
 
         val expected = Either.Left(UpdateEnvironmentError.ListNotAllowed("something"))
         result.shouldBe(expected)

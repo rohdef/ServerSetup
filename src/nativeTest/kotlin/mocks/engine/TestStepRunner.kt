@@ -11,7 +11,7 @@ import mocks.NextResult
 class TestStepRunner(
     var nextResult: NextResult = NextResult.Success(emptyMap<String, String>())
 ) : StepRunner {
-    override suspend fun run(step: Step, environment: Environment): Either<EngineError, EnvironmentUpdates> {
+    override suspend fun runStep(step: Step, environment: Environment): Either<EngineError, EnvironmentUpdates> {
         val currentNextResult = nextResult
         return when(currentNextResult) {
             is NextResult.Failure -> Either.Left(currentNextResult.error)

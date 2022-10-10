@@ -1,7 +1,11 @@
 package engine
 
 import arrow.core.Either
+import configuration.Configuration
+import configuration.JobsToRun
+import configuration.LogLevel
 import configuration.Parameters
+import configuration.installation.Installation
 import configuration.installation.Step
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
@@ -15,38 +19,41 @@ import kotlin.test.Test
 
 @ExperimentalCoroutinesApi
 class StepRunnerTest {
+    private val baseConfiguration = Configuration(
+        Installation(emptyMap()),
+        emptyMap(),
+        JobsToRun.AllJobs,
+        LogLevel.INFO,
+    )
+
     private val parser = VariableParser()
 
     @Test
     fun `Steps are distinguished by name`() = runTest {
-        val fooId = ActionId("foo")
         val fooAction = TestAction()
-
-        val barId = ActionId("bar")
         val barAction = TestAction()
 
         val runners = Runners(
-            fooId to fooAction,
-            barId to barAction,
+            fooAction,
+            barAction,
         )
 
-        val properties = emptyMap<String, String>()
         val environment = emptyMap<String, String>()
         val stepRunner = StepRunnerImplementation(
-            properties,
             runners,
             parser,
+            baseConfiguration,
         )
 
         val step = Step(
             "dummy",
-            fooId,
+            fooAction.actionId,
         )
 
         fooAction.executions.shouldHaveSize(0)
         barAction.executions.shouldHaveSize(0)
 
-        val result = stepRunner.run(step, environment)
+        val result = stepRunner.runStep(step, environment)
 
         result.shouldBeInstanceOf<Either.Right<Any>>()
         fooAction.executions.shouldHaveSize(1)
@@ -58,12 +65,11 @@ class StepRunnerTest {
         val fooId = ActionId("foo")
         val runners = Runners()
 
-        val properties = emptyMap<String, String>()
         val environment = emptyMap<String, String>()
         val stepRunner = StepRunnerImplementation(
-            properties,
             runners,
             parser,
+            baseConfiguration,
         )
 
         val step = Step(
@@ -71,7 +77,7 @@ class StepRunnerTest {
             fooId,
         )
 
-        val result = stepRunner.run(step, environment)
+        val result = stepRunner.runStep(step, environment)
 
         val expectedResult = Either.Left(MissingPlugin(ActionId("foo")))
         result.shouldBe(expectedResult)
@@ -79,19 +85,15 @@ class StepRunnerTest {
 
     @Test
     fun `Environments are sent correctly`() = runTest {
-        val fooId = ActionId("foo")
         val fooAction = TestAction()
 
-        val runners = Runners(
-            fooId to fooAction,
-        )
+        val runners = Runners(fooAction)
 
-        val properties = emptyMap<String, String>()
         val environment = emptyMap<String, String>()
         val stepRunner = StepRunnerImplementation(
-            properties,
             runners,
             parser,
+            baseConfiguration,
         )
 
         val expectedParameters = Parameters.Map(
@@ -105,11 +107,11 @@ class StepRunnerTest {
         )
         val step = Step(
             "dummy",
-            fooId,
+            fooAction.actionId,
             expectedParameters
         )
 
-        stepRunner.run(step, environment)
+        stepRunner.runStep(step, environment)
         val execution = fooAction.executions.first()
 
         execution.parameters.shouldBe(expectedParameters)
@@ -117,12 +119,9 @@ class StepRunnerTest {
 
     @Test
     fun `Parameters are parsed`() = runTest {
-        val fooId = ActionId("foo")
         val fooAction = TestAction()
 
-        val runners = Runners(
-            fooId to fooAction,
-        )
+        val runners = Runners(fooAction)
 
         val properties = mapOf(
             "hostname" to "properties",
@@ -133,14 +132,14 @@ class StepRunnerTest {
             "wife" to "Camilla Lena F.P.",
         )
         val stepRunner = StepRunnerImplementation(
-            properties,
             runners,
             parser,
+            baseConfiguration.copy(properties = properties),
         )
 
         val step = Step(
             "dummy",
-            fooId,
+            fooAction.actionId,
             Parameters.Map(
                 "properties" to Parameters.Map(
                     "hostname" to Parameters.String("\$properties.hostname"),
@@ -153,7 +152,7 @@ class StepRunnerTest {
             )
         )
 
-        stepRunner.run(step, environment)
+        stepRunner.runStep(step, environment)
         val execution = fooAction.executions.first()
 
         val expectedParameters = Parameters.Map(
@@ -172,19 +171,15 @@ class StepRunnerTest {
 
     @Test
     fun `Parsing errors are passed on`() = runTest {
-        val fooId = ActionId("foo")
         val fooAction = TestAction()
 
-        val runners = Runners(
-            fooId to fooAction,
-        )
+        val runners = Runners(fooAction)
 
-        val properties = emptyMap<String, String>()
         val environment = emptyMap<String, String>()
         val stepRunner = StepRunnerImplementation(
-            properties,
             runners,
             parser,
+            baseConfiguration,
         )
 
         val expectedParameters = Parameters.Map(
@@ -192,11 +187,11 @@ class StepRunnerTest {
         )
         val step = Step(
             "dummy",
-            fooId,
+            fooAction.actionId,
             expectedParameters
         )
 
-        val result = stepRunner.run(step, environment)
+        val result = stepRunner.runStep(step, environment)
         result.shouldBe(Either.Left(VariableParserError.VariableNotFound("\$properties.something")))
     }
 }

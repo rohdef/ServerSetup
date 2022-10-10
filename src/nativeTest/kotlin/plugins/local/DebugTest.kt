@@ -13,6 +13,7 @@ import kotlin.test.Test
 
 @ExperimentalCoroutinesApi
 class DebugTest {
+    private val debug = Debug()
     private val appender = CacheAppender()
 
     @BeforeTest
@@ -35,15 +36,17 @@ class DebugTest {
     )
 
     @Test
-    fun `Doesn't update map`() = runTest {
-        val result = Debug.run(parameters)
+    fun `Doesn't update map`() {
+        runTest {
+            val result = debug.run(parameters)
 
-        result.shouldBe(Either.Right(emptyMap()))
+            result.shouldBe(Either.Right(emptyMap()))
+        }
     }
 
     @Test
     fun `Outputs parameters`() = runTest {
-        Debug.run(parameters)
+        debug.run(parameters)
 
         val log = appender.messages.joinToString("\n")
 
@@ -57,12 +60,14 @@ class DebugTest {
                 parameters.value.forAll {
                     checkContents(log, it)
                 }
+
             is Parameters.Map -> {
                 parameters.value.forAll {
                     log.shouldContain(it.key)
                     checkContents(log, it.value)
                 }
             }
+
             is Parameters.String -> log.shouldContain(parameters.value)
         }
     }

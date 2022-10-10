@@ -16,7 +16,7 @@ class JobRunnerImplementation(
         val initial: Either<EngineError, Environment> = Either.Right(initialEnvironment)
         val finalEnvironment = job.steps.fold(initial) { environment, step ->
             environment.flatMap { env ->
-                stepRunner.run(step, env).map { updates ->
+                stepRunner.runStep(step, env).map { updates ->
                     env + updates
                 }
             }

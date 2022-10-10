@@ -21,7 +21,7 @@ data class Configuration(
 
     companion object {
         private fun deserializeInstallation(deserializableInstallation: String): Installation =
-            Json.decodeFromString<Installation>(deserializableInstallation)
+            Json.decodeFromString(deserializableInstallation)
 
         private fun jobsToRun(jobs: List<JobId>): JobsToRun {
             return if (jobs.size > 0) {

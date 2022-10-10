@@ -4,12 +4,15 @@ import arrow.core.Either
 import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.refTo
 import kotlinx.cinterop.toKString
+import mu.KotlinLogging
 import platform.posix.FILE
 import platform.posix.fgets
 import platform.posix.pclose
 import platform.posix.popen
 
 class LinuxSystemUtilities : SystemUtilities {
+    private val logger = KotlinLogging.logger {}
+
     override fun generateCommand(
         executable: String,
         vararg parameters: String,

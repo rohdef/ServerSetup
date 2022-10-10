@@ -5,10 +5,13 @@ import configuration.Parameters
 import engine.EngineError
 import engine.EnvironmentUpdates
 import mu.KotlinLogging
+import plugins.ActionId
 import plugins.StepAction
 
-object Debug : StepAction {
+class Debug : StepAction {
     private val logger = KotlinLogging.logger {}
+
+    override val actionId = ActionId("debug@v1")
 
     override suspend fun run(
         parameters: Parameters.Map,

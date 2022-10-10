@@ -1,6 +1,6 @@
 plugins {
-    kotlin("multiplatform") version "1.7.10"
-    kotlin("plugin.serialization") version "1.7.10"
+    kotlin("multiplatform") version "1.7.20"
+    kotlin("plugin.serialization") version "1.7.20"
 }
 
 group = "dk.rohdef.recipe-installer"
@@ -40,6 +40,9 @@ kotlin {
 
                 implementation("org.jetbrains.kotlinx:kotlinx-cli:0.3.5")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0-RC")
+
+                implementation("com.soywiz.korlibs.korio:korio:3.2.0")
+                implementation("io.insert-koin:koin-core:3.2.2")
 
                 // TODO reboot only
                 implementation("io.ktor:ktor-network:2.0.3")

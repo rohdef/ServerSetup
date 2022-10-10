@@ -9,6 +9,7 @@ import io.ktor.utils.io.*
 import io.ktor.utils.io.core.*
 import mu.KotlinLogging
 import platform.posix.sleep
+import plugins.ActionId
 import plugins.StepAction
 import plugins.remote.executeSshCommand
 import utilities.SystemUtilities
@@ -19,6 +20,8 @@ class Reboot(
     private val socketFactory: SocketFactory
 ) : StepAction {
     private val logger = KotlinLogging.logger {}
+
+    override val actionId = ActionId("reboot@v1")
 
     override suspend fun run(
         parameters: Parameters.Map,

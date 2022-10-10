@@ -5,9 +5,12 @@ import arrow.core.flatMap
 import configuration.Parameters
 import engine.EngineError
 import engine.EnvironmentUpdates
+import plugins.ActionId
 import plugins.StepAction
 
-object UpdateEnvironment : StepAction {
+class UpdateEnvironment : StepAction {
+    override val actionId = ActionId("updateEnvironment@v1")
+
     override suspend fun run(
         parameters: Parameters.Map,
     ): Either<UpdateEnvironmentError, EnvironmentUpdates> {

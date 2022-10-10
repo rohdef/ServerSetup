@@ -1,24 +1,31 @@
 package engine
 
 import arrow.core.Either
+import arrow.core.computations.either
 import arrow.core.flatMap
+import configuration.Configuration
 import configuration.installation.Step
 import mu.KotlinLogging
 
 class StepRunnerImplementation(
-    private val properties: Properties,
     private val runners: Runners,
-    private val parser: VariableParser
+    private val parser: VariableParser,
+    private val configuration: Configuration,
 ) : StepRunner {
     private val logger = KotlinLogging.logger {}
 
-    override suspend fun run(step: Step, environment: Environment): Either<EngineError, EnvironmentUpdates> {
+    override suspend fun runStep(step: Step, environment: Environment): Either<EngineError, EnvironmentUpdates> {
         logger.info { "Running step: ${step.name}" }
 
-        return runners.runners.getValue(step.uses)
-            .flatMap { runner ->
-                parser.parse(properties, environment, step.parameters)
-                    .flatMap { runner.run(it) }
-            }
+        return either {
+            val runner = runners.runners.getValue(step.uses).bind()
+            val parameters = parser.parse(
+                configuration.properties,
+                environment,
+                step.parameters
+            ).bind()
+
+            runner.run(parameters).bind()
+        }
     }
 }

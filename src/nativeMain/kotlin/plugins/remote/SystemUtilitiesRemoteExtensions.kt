@@ -33,10 +33,10 @@ fun SystemUtilities.executeSshCommand(
         "${host.username}@${host.hostname}",
         "-p",
         "${host.port}",
-    ) +
-            listOf(executable) +
-            parameters.toList()
-
+        generateCommand(
+            executable, *parameters
+        )
+    )
 
     return this.executeCommand("sshpass", *sshPrefixed.toTypedArray())
 }

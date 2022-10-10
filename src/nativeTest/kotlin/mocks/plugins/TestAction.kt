@@ -1,14 +1,17 @@
 package mocks.plugins
 
 import arrow.core.Either
+import com.soywiz.korio.util.UUID
 import configuration.Parameters
 import engine.EngineError
 import engine.EnvironmentUpdates
 import mocks.NextResult
+import plugins.ActionId
 import plugins.StepAction
 
 class TestAction(
-    var nextResult: NextResult = NextResult.Success(emptyMap<String, String>())
+    var nextResult: NextResult = NextResult.Success(emptyMap<String, String>()),
+    override val actionId: ActionId = ActionId(UUID.randomUUID().toString()),
 ) : StepAction {
     private val _executions = mutableListOf<Execution>()
 
