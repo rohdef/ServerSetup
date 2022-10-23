@@ -24,6 +24,8 @@ sealed interface Parameters {
 
     @kotlinx.serialization.Serializable(with = MapParameterSerializer::class)
     data class Map(val value: kotlin.collections.Map<kotlin.String, Parameters>) : Parameters {
+        val keys: Set<kotlin.String> = value.keys
+
         fun integerValue(key: kotlin.String): Either<ParameterError, Int> {
             return getValue(key, Integer::class)
                 .map { it.value }

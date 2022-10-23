@@ -36,7 +36,7 @@ class LinuxSystemUtilities : SystemUtilities {
     }
 
     override fun executeCommand(
-        command: String
+        command: String,
     ): Either<SystemUtilityError, String> {
         val commandToExecute = "${command} 2>&1"
         val filePointer = popen(commandToExecute, "r")

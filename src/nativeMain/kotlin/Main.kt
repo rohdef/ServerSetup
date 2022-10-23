@@ -54,7 +54,7 @@ fun main(cliArguments: Array<String>) = runBlocking {
 
     val runnerModule = module {
         singleOf(::VariableParser)
-        singleOf (::StepRunnerImplementation) bind StepRunner::class
+        singleOf(::StepRunnerImplementation) bind StepRunner::class
         singleOf(::JobRunnerImplementation) bind JobRunner::class
     }
 
@@ -84,7 +84,7 @@ private class RecipeApplication : KoinComponent {
             .forEach {
                 jobRunner.run(it.value)
             }
-    }
 
-    logger.info { "The menu is ready and served - enjoy :)" }
+        logger.info { "The menu is ready and served - enjoy :)" }
+    }
 }

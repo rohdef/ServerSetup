@@ -12,6 +12,7 @@ fun SystemUtilities.executeSshCommand(
         "-p",
         host.password,
         "ssh",
+        "-o", "ConnectTimeout=10",
         "${host.username}@${host.hostname}",
         "-p",
         "${host.port}",
@@ -30,12 +31,32 @@ fun SystemUtilities.executeSshCommand(
         "-p",
         host.password,
         "ssh",
+        "-o", "ConnectTimeout=10",
         "${host.username}@${host.hostname}",
         "-p",
         "${host.port}",
         generateCommand(
             executable, *parameters
         )
+    )
+
+    return this.executeCommand("sshpass", *sshPrefixed.toTypedArray())
+}
+
+fun SystemUtilities.scpToRemote(
+    host: Host,
+    source: String,
+    destination: String,
+): Either<SystemUtilityError, String> {
+    val sshPrefixed = listOf(
+        "-p",
+        host.password,
+        "scp",
+        "-o", "ConnectTimeout=10",
+        generateCommand(
+            source
+        ),
+        "${host.username}@${host.hostname}:${host.port}${destination}",
     )
 
     return this.executeCommand("sshpass", *sshPrefixed.toTypedArray())

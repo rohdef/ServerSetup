@@ -106,6 +106,31 @@ class VariableParser {
     }
 }
 
+object VariableHelpers {
+    fun propertiesString(vararg paths: String): String {
+        val path = paths.joinToString { SEPARATOR }
+        return "${PROPERTIES}${SEPARATOR}${path}"
+    }
+
+    fun environmentString(vararg paths: String): String {
+        val path = paths.joinToString { SEPARATOR }
+        return "${ENVIRONMENT}${SEPARATOR}${path}"
+    }
+
+    val SEPARATOR = "."
+    val PROPERTIES = "\$properties"
+    val ENVIRONMENT = "\$environment"
+
+    val SSH_HOSTNAME_PROPERTIES = propertiesString("hostname")
+    val SSH_USERNAME_PROPERTIES = propertiesString("username")
+    val SSH_PASSWORD_PROPERTIES = propertiesString("password")
+
+
+    val SSH_HOSTNAME_ENVIRONMENT = environmentString("hostname")
+    val SSH_USERNAME_ENVIRONMENT = environmentString("username")
+    val SSH_PASSWORD_ENVIRONMENT = environmentString("password")
+}
+
 sealed interface VariableParserError : EngineError {
     data class VariableNotFound(val variables: String) : VariableParserError
 }
