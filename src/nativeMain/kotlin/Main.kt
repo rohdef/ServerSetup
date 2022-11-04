@@ -1,5 +1,6 @@
 import com.soywiz.korio.file.std.applicationVfs
 import com.soywiz.korio.file.std.cwdVfs
+import com.soywiz.korio.file.std.tempVfs
 import configuration.Arguments
 import configuration.Configuration
 import engine.*
@@ -15,9 +16,7 @@ import plugins.StepAction
 import plugins.local.Debug
 import plugins.local.UpdateEnvironment
 import plugins.remote.RunRecipe
-import plugins.remote.install.ApplicationPath
-import plugins.remote.install.InstallRecipeRunner
-import plugins.remote.install.WorkDirectoryPath
+import plugins.remote.install.*
 import plugins.remote.reboot.KtorSockets
 import plugins.remote.reboot.Reboot
 import plugins.remote.reboot.SocketFactory
@@ -34,9 +33,13 @@ fun main(cliArguments: Array<String>) = runBlocking {
         single { Configuration(get()) }
     }
 
+    val workDirectory = KorioDirectoryWrapper.directoryUnsafe(cwdVfs)
+    val applicationDirectory = KorioDirectoryWrapper.directoryUnsafe(applicationVfs)
+    val temporaryDirectory = KorioDirectoryWrapper.directoryUnsafe(tempVfs)
     val systemModule = module {
-        single { WorkDirectoryPath(cwdVfs) }
-        single { ApplicationPath(applicationVfs) }
+        single { WorkDirectoryPath(workDirectory) }
+        single { ApplicationPath(applicationDirectory) }
+        single { TemporaryPathImplementation(temporaryDirectory) }
         singleOf(::LinuxSystemUtilities) bind SystemUtilities::class
         // TODO exterminate if korio can replace - better interface ;)
         singleOf(::KtorSockets) bind SocketFactory::class
@@ -84,7 +87,5 @@ private class RecipeApplication : KoinComponent {
             .forEach {
                 jobRunner.run(it.value)
             }
-
-        logger.info { "The menu is ready and served - enjoy :)" }
     }
 }

@@ -1,52 +1,79 @@
 package plugins.remote.install
 
 import arrow.core.Either
+import arrow.core.computations.either
 import configuration.Parameters
-import engine.EngineError
 import engine.EnvironmentUpdates
 import mu.KotlinLogging
 import plugins.ActionId
 import plugins.StepAction
-import plugins.remote.Host
 import plugins.remote.executeSshCommand
+import plugins.remote.scpToRemote
 import utilities.SystemUtilities
 
 class InstallRecipeRunner(
     private val system: SystemUtilities,
+    private val applicationPath: ApplicationPath,
+    private val workDirectoryPath: WorkDirectoryPath,
 ) : StepAction {
+    private val logger = KotlinLogging.logger {}
+
+    override val actionId = ActionId("installRecipeRunner@v1")
+
     override suspend fun run(
         parameters: Parameters.Map,
-    ): Either<EngineError, EnvironmentUpdates> {
-        val resultA = system.executeSshCommand(
-            Host(
-                "configuration.host",
-                22,
-                "ubuntu",
-                "ubuntu",
-            ),
-            "rm", "-rf", "/tmp/gourmet-askpass"
-        )
-        val resultD = system.executeSshCommand(
-            Host(
-                "configuration.host",
-                22,
-                "ubuntu",
-                "ubuntu",
-            ),
-            "rm", "-rf", "/tmp/gourmet-data"
-        )
-        val resultR = system.executeSshCommand(
-            Host(
-                "configuration.host",
-                22,
-                "ubuntu",
-                "ubuntu",
-            ),
-            "rm", "-rf", "/tmp/gourmet-runner"
-        )
+    ): Either<InstallError, EnvironmentUpdates> {
+        logger.info { "Installer in action" }
 
-        TODO("not implemented")
+        return either {
+            logger.info { applicationPath.absolutePath }
+            logger.info { workDirectoryPath.absolutePath }
+
+            val configuration = Configuration.create(parameters)
+                .mapLeft { InstallError.CouldNotParseConfiguration(it) }
+                .bind()
+
+            system
+                .executeSshCommand(
+                    configuration.host,
+                    "rm", "-rf", "/tmp/gourmet-runner/"
+                )
+                .mapLeft { InstallError.CannotExecuteCommand(it) }
+                .bind()
+            system
+                .executeSshCommand(
+                    configuration.host,
+                    "mkdir", "-p", "/tmp/gourmet-runner/"
+                )
+                .mapLeft { InstallError.CannotExecuteCommand(it) }
+                .bind()
+            system
+                .scpToRemote(
+                    configuration.host,
+                    applicationPath.list(),
+                    "/tmp/gourmet-runner",
+                )
+                .mapLeft { InstallError.CannotExecuteCommand(it) }
+                .bind()
+
+
+
+            logger.info { "askpass" }
+            system
+                .executeSshCommand(
+                    configuration.host,
+                    "echo", "...", "/tmp/gourmet-runner/askpass.sh"
+                )
+                .mapLeft { InstallError.CannotExecuteCommand(it) }
+                .bind()
+
+            emptyMap()
+        }
+
+//        logger.info { "data" }
+//        val resultD = system.executeSshCommand(
+//            host,
+//            "rm", "-rf", "/tmp/gourmet-data"
+//        )
     }
-
-
 }

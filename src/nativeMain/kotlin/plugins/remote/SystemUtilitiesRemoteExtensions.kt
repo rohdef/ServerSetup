@@ -1,6 +1,7 @@
 package plugins.remote
 
 import arrow.core.Either
+import plugins.remote.install.Path
 import utilities.SystemUtilities
 import utilities.SystemUtilityError
 
@@ -9,13 +10,11 @@ fun SystemUtilities.executeSshCommand(
     command: String,
 ): Either<SystemUtilityError, String> {
     val sshPrefixed = listOf(
-        "-p",
-        host.password,
+        "-p", host.password,
         "ssh",
         "-o", "ConnectTimeout=10",
         "${host.username}@${host.hostname}",
-        "-p",
-        "${host.port}",
+        "-p", "${host.port}",
         command,
     )
 
@@ -28,13 +27,11 @@ fun SystemUtilities.executeSshCommand(
     vararg parameters: String,
 ): Either<SystemUtilityError, String> {
     val sshPrefixed = listOf(
-        "-p",
-        host.password,
+        "-p", host.password,
         "ssh",
         "-o", "ConnectTimeout=10",
         "${host.username}@${host.hostname}",
-        "-p",
-        "${host.port}",
+        "-p", "${host.port}",
         generateCommand(
             executable, *parameters
         )
@@ -45,19 +42,23 @@ fun SystemUtilities.executeSshCommand(
 
 fun SystemUtilities.scpToRemote(
     host: Host,
-    source: String,
+    sources: List<Path>,
     destination: String,
 ): Either<SystemUtilityError, String> {
-    val sshPrefixed = listOf(
-        "-p",
-        host.password,
-        "scp",
-        "-o", "ConnectTimeout=10",
-        generateCommand(
-            source
-        ),
-        "${host.username}@${host.hostname}:${host.port}${destination}",
-    )
+    val sourceArguments = sources.map { it.absolutePath }
+        .map { generateCommand(it) }
+
+    val sshPrefixed =
+        listOf(
+            "-p",
+            host.password,
+            "scp",
+            "-o", "ConnectTimeout=10",
+            "-r",
+            "-P", "${host.port}"
+        ) +
+                sourceArguments +
+                listOf("${host.username}@${host.hostname}:${destination}")
 
     return this.executeCommand("sshpass", *sshPrefixed.toTypedArray())
 }

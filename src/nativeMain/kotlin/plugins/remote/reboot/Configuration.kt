@@ -16,8 +16,7 @@ data class Configuration(
         suspend fun create(parameters: Parameters.Map): Either<ParameterError, Configuration> {
             return either {
                 val host = parameters.mapValue("host")
-                    .map { Host.create(it) }
-                    .bind()
+                    .flatMap { Host.create(it) }
 
                 val wait = parameters.enumValue("waitForReboot", Reboot.WaitForReboot.DO_NOT_WAIT)
                 val scriptPath = parameters.stringValue("scriptPath", "do-configure")
