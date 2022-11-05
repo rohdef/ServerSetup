@@ -1,2 +1,2 @@
 rootProject.name = "gourmet"
-include("recipe-runner", "remote-install", "rfpath")
+include("recipe-runner", "gourmet-api", "remote-install", "rfpath")

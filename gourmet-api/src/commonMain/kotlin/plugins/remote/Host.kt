@@ -4,7 +4,6 @@ import arrow.core.Either
 import arrow.core.computations.either
 import configuration.ParameterError
 import configuration.Parameters
-import engine.VariableHelpers
 
 data class Host(
     val hostname: String,

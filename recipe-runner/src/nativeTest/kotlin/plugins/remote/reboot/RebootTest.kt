@@ -12,7 +12,7 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import io.ktor.network.sockets.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import mocks.utilities.TestSystemUtilities
+import utilities.test.TestSystemUtilities
 import plugins.remote.Host
 import utilities.SystemUtilityError
 import kotlin.test.Ignore

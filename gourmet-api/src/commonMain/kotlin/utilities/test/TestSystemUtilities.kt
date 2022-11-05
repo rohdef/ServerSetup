@@ -1,7 +1,6 @@
-package mocks.utilities
+package utilities.test
 
 import arrow.core.Either
-import mocks.NextResult
 import utilities.SystemUtilities
 import utilities.SystemUtilityError
 

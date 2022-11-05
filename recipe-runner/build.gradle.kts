@@ -30,6 +30,8 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
+                implementation(project(":gourmet-api"))
+                implementation(project(":remote-install"))
                 implementation(project(":rfpath"))
 
                 implementation("io.arrow-kt:arrow-core:1.0.1")

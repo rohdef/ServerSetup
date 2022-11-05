@@ -12,7 +12,7 @@ data class Configuration(
     val jobsToRun: JobsToRun,
     val logLevel: LogLevel
 ) {
-    constructor(arguments: Arguments): this(
+    constructor(arguments: Arguments) : this(
         deserializeInstallation(arguments.configurationFile),
         arguments.properties,
         jobsToRun(arguments.jobs),

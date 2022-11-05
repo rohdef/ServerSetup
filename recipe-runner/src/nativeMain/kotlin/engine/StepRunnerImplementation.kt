@@ -2,7 +2,6 @@ package engine
 
 import arrow.core.Either
 import arrow.core.computations.either
-import arrow.core.flatMap
 import configuration.Configuration
 import configuration.installation.Step
 import mu.KotlinLogging
