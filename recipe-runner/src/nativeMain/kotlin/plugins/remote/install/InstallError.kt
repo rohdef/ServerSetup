@@ -5,6 +5,8 @@ import engine.EngineError
 import utilities.SystemUtilityError
 
 sealed interface InstallError : EngineError {
+    object CannotWriteAskpassFile : InstallError
+
     data class CannotExecuteCommand<T : SystemUtilityError>(
         val error: T
     ) : InstallError

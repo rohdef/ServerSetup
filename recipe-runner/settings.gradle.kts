@@ -1,3 +1,1 @@
-
-rootProject.name = "gourmet"
-
+rootProject.name = "recipe-runner"

@@ -1,2 +1,2 @@
 rootProject.name = "gourmet"
-include("recipe-runner")
+include("recipe-runner", "rfpath")

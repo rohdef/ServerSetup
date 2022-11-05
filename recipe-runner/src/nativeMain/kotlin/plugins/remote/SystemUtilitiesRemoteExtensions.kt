@@ -1,7 +1,7 @@
 package plugins.remote
 
 import arrow.core.Either
-import plugins.remote.install.Path
+import dk.rohdef.rfpath.Path
 import utilities.SystemUtilities
 import utilities.SystemUtilityError
 

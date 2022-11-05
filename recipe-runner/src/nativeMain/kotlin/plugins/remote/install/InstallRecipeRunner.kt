@@ -3,6 +3,7 @@ package plugins.remote.install
 import arrow.core.Either
 import arrow.core.computations.either
 import configuration.Parameters
+import dk.rohdef.rfpath.PathUtility
 import engine.EnvironmentUpdates
 import mu.KotlinLogging
 import plugins.ActionId
@@ -13,8 +14,7 @@ import utilities.SystemUtilities
 
 class InstallRecipeRunner(
     private val system: SystemUtilities,
-    private val applicationPath: ApplicationPath,
-    private val workDirectoryPath: WorkDirectoryPath,
+    private val pathUtility: PathUtility,
 ) : StepAction {
     private val logger = KotlinLogging.logger {}
 
@@ -26,8 +26,9 @@ class InstallRecipeRunner(
         logger.info { "Installer in action" }
 
         return either {
-            logger.info { applicationPath.absolutePath }
-            logger.info { workDirectoryPath.absolutePath }
+            val applicationDirectory = pathUtility.applicationDirectory()
+            logger.info { applicationDirectory.absolutePath }
+            logger.info { applicationDirectory.absolutePath }
 
             val configuration = Configuration.create(parameters)
                 .mapLeft { InstallError.CouldNotParseConfiguration(it) }
@@ -50,7 +51,7 @@ class InstallRecipeRunner(
             system
                 .scpToRemote(
                     configuration.host,
-                    applicationPath.list(),
+                    applicationDirectory.list(),
                     "/tmp/gourmet-runner",
                 )
                 .mapLeft { InstallError.CannotExecuteCommand(it) }
@@ -58,13 +59,18 @@ class InstallRecipeRunner(
 
 
 
-            logger.info { "askpass" }
-            system
-                .executeSshCommand(
-                    configuration.host,
-                    "echo", "...", "/tmp/gourmet-runner/askpass.sh"
-                )
-                .mapLeft { InstallError.CannotExecuteCommand(it) }
+            logger.info { "Askpass" }
+            val askpassFile = pathUtility.createTemporaryFile()
+                // TODO: 05/11/2022 rohdef - better error handling
+                .mapLeft { InstallError.CannotWriteAskpassFile }
+                .bind()
+            askpassFile.write("""
+                #!/usr/bin/env bash
+
+                echo "hahaha!"
+            """.trimIndent())
+                // TODO: 05/11/2022 rohdef - better error handling
+                .mapLeft { InstallError.CannotWriteAskpassFile }
                 .bind()
 
             emptyMap()

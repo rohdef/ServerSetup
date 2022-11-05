@@ -1,2 +1,0 @@
-echo "hmm"
-echo "$@"

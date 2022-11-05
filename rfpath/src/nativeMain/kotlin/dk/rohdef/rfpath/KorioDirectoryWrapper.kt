@@ -1,4 +1,4 @@
-package plugins.remote.install
+package dk.rohdef.rfpath
 
 import arrow.core.Either
 import arrow.core.computations.either

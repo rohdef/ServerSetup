@@ -7,7 +7,7 @@ import yaml
 from subprocess import run
 
 def main():
-    pathToGourmet = "./build/bin/native/releaseExecutable/gourmet.kexe"
+    pathToGourmet = "./build/bin/native/releaseExecutable/recipe-runner.kexe"
     argsToPass = sys.argv[1:-1]
 
     if len(sys.argv) > 1:

@@ -1,8 +1,6 @@
-import com.soywiz.korio.file.std.applicationVfs
-import com.soywiz.korio.file.std.cwdVfs
-import com.soywiz.korio.file.std.tempVfs
 import configuration.Arguments
 import configuration.Configuration
+import dk.rohdef.rfpath.PathUtility
 import engine.*
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
@@ -16,7 +14,7 @@ import plugins.StepAction
 import plugins.local.Debug
 import plugins.local.UpdateEnvironment
 import plugins.remote.RunRecipe
-import plugins.remote.install.*
+import plugins.remote.install.InstallRecipeRunner
 import plugins.remote.reboot.KtorSockets
 import plugins.remote.reboot.Reboot
 import plugins.remote.reboot.SocketFactory
@@ -33,13 +31,9 @@ fun main(cliArguments: Array<String>) = runBlocking {
         single { Configuration(get()) }
     }
 
-    val workDirectory = KorioDirectoryWrapper.directoryUnsafe(cwdVfs)
-    val applicationDirectory = KorioDirectoryWrapper.directoryUnsafe(applicationVfs)
-    val temporaryDirectory = KorioDirectoryWrapper.directoryUnsafe(tempVfs)
+    val pathUtility = PathUtility.defaultUtilities()
     val systemModule = module {
-        single { WorkDirectoryPath(workDirectory) }
-        single { ApplicationPath(applicationDirectory) }
-        single { TemporaryPathImplementation(temporaryDirectory) }
+        single { pathUtility }
         singleOf(::LinuxSystemUtilities) bind SystemUtilities::class
         // TODO exterminate if korio can replace - better interface ;)
         singleOf(::KtorSockets) bind SocketFactory::class

@@ -3,8 +3,9 @@ plugins {
     kotlin("plugin.serialization") version "1.7.20"
 }
 
-group = "dk.rohdef.recipe-runner"
+group = "dk.rohdef.rfpath"
 version = "1.0-SNAPSHOT"
+description = "Path library to handle basic file system IO"
 
 repositories {
     mavenCentral()
@@ -20,32 +21,17 @@ kotlin {
         else -> throw GradleException("Host OS is not supported in Kotlin/Native.")
     }
 
-    nativeTarget.apply {
-        binaries {
-            executable {
-                entryPoint = "main"
-            }
-        }
-    }
     sourceSets {
-        commonMain {
+        val commonMain by getting {
             dependencies {
-                implementation(project(":rfpath"))
-
                 implementation("io.arrow-kt:arrow-core:1.0.1")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
 
                 implementation("io.github.microutils:kotlin-logging:2.1.23")
                 implementation("io.github.microutils:kotlin-logging-linuxx64:2.1.23")
 
-                implementation("org.jetbrains.kotlinx:kotlinx-cli:0.3.5")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0-RC")
-
                 implementation("com.soywiz.korlibs.korio:korio:3.2.0")
                 implementation("io.insert-koin:koin-core:3.2.2")
-
-                // TODO reboot only
-                implementation("io.ktor:ktor-network:2.0.3")
             }
         }
         val commonTest by getting

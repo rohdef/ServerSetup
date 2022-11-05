@@ -1,6 +1,7 @@
-package plugins.remote.install
+package dk.rohdef.rfpath
 
 import arrow.core.Either
+import arrow.core.right
 import com.soywiz.korio.file.VfsFile
 
 class KorioFileWrapper private constructor(
@@ -8,8 +9,9 @@ class KorioFileWrapper private constructor(
 ) : Path.File {
     override val absolutePath = vfs.absolutePath
 
-    override suspend fun write(text: String) {
+    override suspend fun write(text: String): Either<FileError, Unit> {
         vfs.writeString(text)
+        return Unit.right()
     }
 
     companion object {

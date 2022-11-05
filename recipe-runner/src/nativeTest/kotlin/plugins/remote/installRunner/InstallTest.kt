@@ -1,30 +1,26 @@
 package plugins.remote.installRunner
 
-import com.soywiz.korio.file.std.applicationVfs
-import com.soywiz.korio.file.std.cwdVfs
 import configuration.Parameters
+import dk.rohdef.rfpath.PathUtility
 import io.kotest.matchers.collections.shouldHaveSize
-import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import mocks.utilities.TestSystemUtilities
-import plugins.remote.install.ApplicationPath
 import plugins.remote.install.InstallRecipeRunner
-import plugins.remote.install.WorkDirectoryPath
 import kotlin.test.Ignore
 import kotlin.test.Test
 
 @ExperimentalCoroutinesApi
 class InstallTest {
     private val system = TestSystemUtilities()
-    private val workDirectoryPath = WorkDirectoryPath(cwdVfs)
-    private val applicationPath = ApplicationPath(applicationVfs)
+
+    // TODO: 04/11/2022 rohdef - introduce test utilities
+    private val pathUtility: PathUtility = PathUtility.defaultUtilities()
 
     private val install = InstallRecipeRunner(
         system,
-        applicationPath,
-        workDirectoryPath,
+        pathUtility,
     )
 
     @Test

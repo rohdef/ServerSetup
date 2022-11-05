@@ -1,4 +1,4 @@
-package plugins.remote.install
+package dk.rohdef.rfpath
 
 import arrow.core.Either
 
@@ -12,7 +12,7 @@ sealed interface Path {
     }
 
     interface File : Path {
-        suspend fun write(text: String)
+        suspend fun write(text: String): Either<FileError, Unit>
     }
 }
 
