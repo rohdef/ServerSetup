@@ -3,7 +3,7 @@ plugins {
     kotlin("plugin.serialization") version "1.7.20"
 }
 
-group = "dk.rohdef.rfpath"
+group = "dk.rohdef.remote-install"
 version = "1.0-SNAPSHOT"
 description = "Path library to handle basic file system IO"
 
