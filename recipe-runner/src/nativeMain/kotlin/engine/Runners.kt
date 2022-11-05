@@ -1,8 +1,8 @@
 package engine
 
 import arrow.core.Either
-import plugins.ActionId
-import plugins.StepAction
+import dk.rohdef.plugins.ActionId
+import dk.rohdef.plugins.StepAction
 
 data class Runners private constructor(
     val runners: Map<ActionId, Either<EngineError, StepAction>>

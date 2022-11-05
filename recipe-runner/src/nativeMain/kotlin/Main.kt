@@ -1,5 +1,13 @@
 import configuration.Arguments
 import configuration.Configuration
+import dk.rohdef.plugins.StepAction
+import dk.rohdef.plugins.debug.Debug
+import dk.rohdef.plugins.local.UpdateEnvironment
+import dk.rohdef.plugins.remote.RunRecipe
+import dk.rohdef.plugins.remote.install.InstallRecipeRunner
+import dk.rohdef.plugins.remote.reboot.KtorSockets
+import dk.rohdef.plugins.remote.reboot.Reboot
+import dk.rohdef.plugins.remote.reboot.SocketFactory
 import dk.rohdef.rfpath.PathUtility
 import engine.*
 import kotlinx.coroutines.runBlocking
@@ -10,14 +18,6 @@ import org.koin.core.context.startKoin
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
-import plugins.StepAction
-import plugins.local.Debug
-import plugins.local.UpdateEnvironment
-import plugins.remote.RunRecipe
-import plugins.remote.install.InstallRecipeRunner
-import plugins.remote.reboot.KtorSockets
-import plugins.remote.reboot.Reboot
-import plugins.remote.reboot.SocketFactory
 import utilities.LinuxSystemUtilities
 import utilities.SystemUtilities
 

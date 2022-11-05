@@ -1,6 +1,6 @@
 package engine
 
-import plugins.ActionId
+import dk.rohdef.plugins.ActionId
 
 data class MissingPlugin(
     val pluginId: ActionId
