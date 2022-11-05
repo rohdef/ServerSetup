@@ -14,7 +14,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import mocks.plugins.TestAction
 import plugins.ActionId
-import plugins.MissingPlugin
 import kotlin.test.Test
 
 @ExperimentalCoroutinesApi

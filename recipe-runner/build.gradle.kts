@@ -3,7 +3,7 @@ plugins {
     kotlin("plugin.serialization") version "1.7.20"
 }
 
-group = "dk.rohdef.recipe-runner"
+group = "dk.rohdef.gourmet.recipe-runner"
 version = "1.0-SNAPSHOT"
 
 repositories {
@@ -30,9 +30,15 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(project(":gourmet-api"))
-                implementation(project(":remote-install"))
                 implementation(project(":rfpath"))
+
+                implementation(project(":gourmet-api"))
+
+                implementation(project(":debug"))
+                implementation(project(":reboot"))
+                implementation(project(":remote-install"))
+                implementation(project(":run-recipe"))
+                implementation(project(":update-environment"))
 
                 implementation("io.arrow-kt:arrow-core:1.0.1")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
@@ -43,11 +49,7 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-cli:0.3.5")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0-RC")
 
-                implementation("com.soywiz.korlibs.korio:korio:3.2.0")
                 implementation("io.insert-koin:koin-core:3.2.2")
-
-                // TODO reboot only
-                implementation("io.ktor:ktor-network:2.0.3")
             }
         }
         val commonTest by getting

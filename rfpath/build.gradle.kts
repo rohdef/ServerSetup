@@ -31,7 +31,6 @@ kotlin {
                 implementation("io.github.microutils:kotlin-logging-linuxx64:2.1.23")
 
                 implementation("com.soywiz.korlibs.korio:korio:3.2.0")
-                implementation("io.insert-koin:koin-core:3.2.2")
             }
         }
         val nativeTest by getting {

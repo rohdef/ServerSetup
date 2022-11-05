@@ -3,7 +3,7 @@ plugins {
     kotlin("plugin.serialization") version "1.7.20"
 }
 
-group = "dk.rohdef.gourmet.plugins.remote-install"
+group = "dk.rohdef.gourmet.plugins.update-environment"
 version = "1.0-SNAPSHOT"
 description = ""
 
@@ -22,7 +22,7 @@ kotlin {
     }
 
     sourceSets {
-        val nativeMain by getting {
+        val commonMain by getting {
             dependencies {
                 implementation(project(":gourmet-api"))
 
@@ -33,7 +33,7 @@ kotlin {
                 implementation("io.github.microutils:kotlin-logging-linuxx64:2.1.23")
             }
         }
-        val nativeTest by getting {
+        val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
 

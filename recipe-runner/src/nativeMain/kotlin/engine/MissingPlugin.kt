@@ -1,6 +1,6 @@
-package plugins
+package engine
 
-import engine.EngineError
+import plugins.ActionId
 
 data class MissingPlugin(
     val pluginId: ActionId

@@ -3,7 +3,7 @@ plugins {
     kotlin("plugin.serialization") version "1.7.20"
 }
 
-group = "dk.rohdef.gourmet.plugins.remote-install"
+group = "dk.rohdef.gourmet.pluhins.reboot"
 version = "1.0-SNAPSHOT"
 description = ""
 
@@ -31,6 +31,8 @@ kotlin {
 
                 implementation("io.github.microutils:kotlin-logging:2.1.23")
                 implementation("io.github.microutils:kotlin-logging-linuxx64:2.1.23")
+
+                implementation("io.ktor:ktor-network:2.0.3")
             }
         }
         val nativeTest by getting {

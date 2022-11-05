@@ -3,7 +3,7 @@ plugins {
     kotlin("plugin.serialization") version "1.7.20"
 }
 
-group = "dk.rohdef.gourmet.plugins.remote-install"
+group = "dk.rohdef.gourmet.plugins.run-recipe"
 version = "1.0-SNAPSHOT"
 description = ""
 

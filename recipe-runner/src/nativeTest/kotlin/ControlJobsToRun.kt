@@ -1,9 +1,7 @@
-import configuration.installation.JobId
 import configuration.JobsToRun
+import configuration.installation.JobId
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
 class ControlJobsToRun {
     @Test
