@@ -7,13 +7,13 @@ import configuration.LogLevel
 import configuration.Parameters
 import configuration.installation.Installation
 import configuration.installation.Step
+import dk.rohdef.plugins.ActionId
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import mocks.plugins.TestAction
-import plugins.ActionId
 import kotlin.test.Test
 
 @ExperimentalCoroutinesApi

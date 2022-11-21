@@ -1,13 +1,13 @@
 package dk.rohdef.plugins.remote.install
 
 import arrow.core.Either
-import arrow.core.computations.either
+import arrow.core.continuations.either
 import configuration.Parameters
 import dk.rohdef.plugins.ActionId
 import dk.rohdef.plugins.StepAction
 import dk.rohdef.plugins.remote.executeSshCommand
 import dk.rohdef.plugins.remote.scpToRemote
-import dk.rohdef.rfpath.PathUtility
+import dk.rohdef.rfpath.utility.PathUtility
 import engine.EnvironmentUpdates
 import mu.KotlinLogging
 import utilities.SystemUtilities
@@ -27,6 +27,8 @@ class InstallRecipeRunner(
 
         return either {
             val applicationDirectory = pathUtility.applicationDirectory()
+                .mapLeft { ApplicationDirectoryUnavailable.fromDirectoryInstance(it) }
+                .bind()
             logger.info { applicationDirectory.absolutePath }
             logger.info { applicationDirectory.absolutePath }
 

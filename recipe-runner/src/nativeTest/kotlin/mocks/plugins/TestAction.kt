@@ -3,11 +3,11 @@ package mocks.plugins
 import arrow.core.Either
 import com.soywiz.korio.util.UUID
 import configuration.Parameters
+import dk.rohdef.plugins.ActionId
+import dk.rohdef.plugins.StepAction
 import engine.EngineError
 import engine.EnvironmentUpdates
 import mocks.NextResult
-import plugins.ActionId
-import plugins.StepAction
 
 class TestAction(
     var nextResult: NextResult = NextResult.Success(emptyMap<String, String>()),

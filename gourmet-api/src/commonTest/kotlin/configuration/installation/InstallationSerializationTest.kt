@@ -1,7 +1,7 @@
 package configuration.installation
 
 import configuration.Parameters
-import plugins.ActionId
+import dk.rohdef.plugins.ActionId
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString

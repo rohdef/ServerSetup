@@ -2,7 +2,8 @@ package dk.rohdef.plugins.remote.installRunner
 
 import configuration.Parameters
 import dk.rohdef.plugins.remote.install.InstallRecipeRunner
-import dk.rohdef.rfpath.PathUtility
+import dk.rohdef.rfpath.okio.OkioPathUtility
+import dk.rohdef.rfpath.utility.PathUtility
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.string.shouldContain
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -16,7 +17,7 @@ class InstallTest {
     private val system = TestSystemUtilities()
 
     // TODO: 04/11/2022 rohdef - introduce test utilities
-    private val pathUtility: PathUtility = PathUtility.defaultUtilities()
+    private val pathUtility: PathUtility = OkioPathUtility.createPathUtilityUnsafe()
 
     private val install = InstallRecipeRunner(
         system,

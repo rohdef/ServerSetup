@@ -1,6 +1,7 @@
 plugins {
-    kotlin("multiplatform") version "1.7.20"
-    kotlin("plugin.serialization") version "1.7.20"
+    val kotlinVersion = "1.7.21"
+    kotlin("multiplatform") version kotlinVersion
+    kotlin("plugin.serialization") version kotlinVersion
 }
 
 group = "dk.rohdef.rfpath"
@@ -21,16 +22,23 @@ kotlin {
         else -> throw GradleException("Host OS is not supported in Kotlin/Native.")
     }
 
+    val kotestVersion = "5.4.2"
+    // 2.5.4
+    val okioVersion = "3.2.0"
+    val kotlinLoggingVersion = "3.0.4"
+    val arrowKtVersion = "1.1.3"
     sourceSets {
         val nativeMain by getting {
             dependencies {
-                implementation("io.arrow-kt:arrow-core:1.0.1")
+                implementation("io.arrow-kt:arrow-core:$arrowKtVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
 
-                implementation("io.github.microutils:kotlin-logging:2.1.23")
-                implementation("io.github.microutils:kotlin-logging-linuxx64:2.1.23")
+                implementation("io.github.microutils:kotlin-logging:$kotlinLoggingVersion")
+                implementation("io.github.microutils:kotlin-logging-linuxx64:$kotlinLoggingVersion")
 
-                implementation("com.soywiz.korlibs.korio:korio:3.2.0")
+                implementation("com.soywiz.korlibs.korio:korio:3.3.1")
+                implementation("com.squareup.okio:okio:$okioVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
             }
         }
         val nativeTest by getting {
@@ -38,8 +46,11 @@ kotlin {
                 implementation(kotlin("test"))
 
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.3-native-mt")
-                implementation("io.kotest:kotest-framework-engine:5.4.2")
-                implementation("io.kotest:kotest-assertions-core:5.4.2")
+                implementation("io.kotest:kotest-framework-engine:$kotestVersion")
+                implementation("io.kotest:kotest-assertions-core:$kotestVersion")
+                implementation("io.kotest.extensions:kotest-assertions-arrow:1.2.5")
+
+                implementation("com.squareup.okio:okio-fakefilesystem:$okioVersion")
             }
         }
     }

@@ -8,7 +8,7 @@ import dk.rohdef.plugins.remote.install.InstallRecipeRunner
 import dk.rohdef.plugins.remote.reboot.KtorSockets
 import dk.rohdef.plugins.remote.reboot.Reboot
 import dk.rohdef.plugins.remote.reboot.SocketFactory
-import dk.rohdef.rfpath.PathUtility
+import dk.rohdef.rfpath.okio.OkioPathUtility
 import engine.*
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
@@ -31,7 +31,7 @@ fun main(cliArguments: Array<String>) = runBlocking {
         single { Configuration(get()) }
     }
 
-    val pathUtility = PathUtility.defaultUtilities()
+    val pathUtility = OkioPathUtility.createPathUtility()
     val systemModule = module {
         single { pathUtility }
         singleOf(::LinuxSystemUtilities) bind SystemUtilities::class

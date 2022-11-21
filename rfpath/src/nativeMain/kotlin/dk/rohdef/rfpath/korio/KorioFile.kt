@@ -1,17 +1,30 @@
-package dk.rohdef.rfpath
+package dk.rohdef.rfpath.korio
 
 import arrow.core.Either
 import arrow.core.right
-import com.soywiz.korio.file.VfsFile
+import com.soywiz.korio.file.*
+import dk.rohdef.rfpath.*
+import dk.rohdef.rfpath.Path
+import dk.rohdef.rfpath.permissions.Permissions
 
-class KorioFileWrapper private constructor(
+class KorioFile private constructor(
     private val vfs: VfsFile,
 ) : Path.File {
     override val absolutePath = vfs.absolutePath
 
-    override suspend fun write(text: String): Either<FileError, Unit> {
+    override suspend fun setPermissions(permissions: Permissions): Either<DirectoryError, Path.File> {
+        vfs.setUnixPermission(permissions.toVfsPermissions())
+
+        return this.right()
+    }
+
+    override suspend fun currentPermission(): Permissions {
+        return vfs.getUnixPermission().toPermissions()
+    }
+
+    override suspend fun write(text: String): Either<FileError, Path.File> {
         vfs.writeString(text)
-        return Unit.right()
+        return this.right()
     }
 
     companion object {
@@ -19,7 +32,7 @@ class KorioFileWrapper private constructor(
             return if (!vfsFile.isFile()) {
                 Either.Left(FileError.NotAFile)
             } else {
-                Either.Right(KorioFileWrapper(vfsFile))
+                Either.Right(KorioFile(vfsFile))
             }
         }
 

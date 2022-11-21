@@ -43,7 +43,7 @@ fun SystemUtilities.executeSshCommand(
 
 fun SystemUtilities.scpToRemote(
     host: Host,
-    sources: List<Path>,
+    sources: List<Path<*>>,
     destination: String,
 ): Either<SystemUtilityError, String> {
     val sourceArguments = sources.map { it.absolutePath }

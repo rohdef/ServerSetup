@@ -3,13 +3,13 @@ package engine
 import arrow.core.Either
 import configuration.installation.Job
 import configuration.installation.Step
+import dk.rohdef.plugins.ActionId
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import mocks.NextResult
 import mocks.TestError
 import mocks.engine.TestStepRunner
-import plugins.ActionId
 import kotlin.test.Test
 
 @ExperimentalCoroutinesApi
