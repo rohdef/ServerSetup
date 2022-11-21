@@ -6,6 +6,7 @@ import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
+import okio.Path.Companion.toPath
 import kotlin.test.Ignore
 import kotlin.test.Test
 
@@ -45,6 +46,19 @@ class OkioFileTest {
             .shouldBeLeft()
         error
             .shouldBe(FileInstance.EntityIsNonExisting(directoryPath.toString()))
+    }
+
+    @Test
+    fun `write to file`() = runTest {
+        val testContent = "This is a test"
+        val file = testFileUnwrapped()
+
+        file.write(testContent)
+            .shouldBeRight()
+
+        val actual = fileSystem.read(file.absolutePath.toPath()) { readUtf8() }
+        actual
+            .shouldBe(testContent)
     }
 
     @Test

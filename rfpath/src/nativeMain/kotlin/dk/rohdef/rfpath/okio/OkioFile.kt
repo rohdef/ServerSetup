@@ -33,7 +33,7 @@ class OkioFile private constructor(
     override suspend fun write(text: String): Either<FileError, Path.File> {
         fileSystem.write(path) { writeUtf8(text) }
 
-        TODO("not implemented")
+        return this.right()
     }
 
     companion object {

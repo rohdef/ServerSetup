@@ -1,7 +1,7 @@
 package dk.rohdef.plugins.remote.reboot
 
 import arrow.core.Either
-import arrow.core.computations.either
+import arrow.core.continuations.either
 import configuration.Parameters
 import dk.rohdef.plugins.ActionId
 import dk.rohdef.plugins.StepAction

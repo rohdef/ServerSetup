@@ -2,7 +2,7 @@ package engine
 
 import arrow.core.Either
 import arrow.core.flatMap
-import arrow.core.traverseEither
+import arrow.core.traverse
 import configuration.Parameters
 
 class VariableParser {
@@ -10,8 +10,8 @@ class VariableParser {
         properties: Properties,
         environment: Environment,
         parameters: Parameters
-    ) : Either<VariableParserError, Parameters> {
-        return when(parameters) {
+    ): Either<VariableParserError, Parameters> {
+        return when (parameters) {
             is Parameters.Integer -> Either.Right(parameters)
             is Parameters.String -> parse(properties, environment, parameters)
             is Parameters.List -> parse(properties, environment, parameters)
@@ -41,7 +41,7 @@ class VariableParser {
         properties: Properties,
         environment: Environment,
         parameters: Parameters.List
-    ) : Either<VariableParserError, Parameters.List> {
+    ): Either<VariableParserError, Parameters.List> {
         val items = parameters.value.map { parse(properties, environment, it) }
 
         val newItems = mutableListOf<Parameters>()
@@ -59,7 +59,7 @@ class VariableParser {
         properties: Properties,
         environment: Environment,
         parameters: Parameters.String
-    ) : Either<VariableParserError, Parameters.String> {
+    ): Either<VariableParserError, Parameters.String> {
         return parse(properties, environment, parameters.value)
             .map { Parameters.String(it) }
     }
@@ -93,7 +93,7 @@ class VariableParser {
             .mapValues { Either.Right(it.value) }
             .withDefault { Either.Left(VariableParserError.VariableNotFound(it)) }
 
-        val variableToValue = referencedVariables.traverseEither { key ->
+        val variableToValue = referencedVariables.traverse { key ->
             variablesEithered.getValue(key)
                 .map { key to it }
         }

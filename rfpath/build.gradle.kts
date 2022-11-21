@@ -27,6 +27,7 @@ kotlin {
     val okioVersion = "3.2.0"
     val kotlinLoggingVersion = "3.0.4"
     val arrowKtVersion = "1.1.3"
+    val arrowKtVersionKotest = "1.2.5"
     sourceSets {
         val nativeMain by getting {
             dependencies {
@@ -48,7 +49,7 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.3-native-mt")
                 implementation("io.kotest:kotest-framework-engine:$kotestVersion")
                 implementation("io.kotest:kotest-assertions-core:$kotestVersion")
-                implementation("io.kotest.extensions:kotest-assertions-arrow:1.2.5")
+                implementation("io.kotest.extensions:kotest-assertions-arrow:$arrowKtVersionKotest")
 
                 implementation("com.squareup.okio:okio-fakefilesystem:$okioVersion")
             }

@@ -1,3 +1,4 @@
+import arrow.core.getOrElse
 import configuration.Arguments
 import configuration.Configuration
 import dk.rohdef.plugins.StepAction
@@ -9,6 +10,9 @@ import dk.rohdef.plugins.remote.reboot.KtorSockets
 import dk.rohdef.plugins.remote.reboot.Reboot
 import dk.rohdef.plugins.remote.reboot.SocketFactory
 import dk.rohdef.rfpath.okio.OkioPathUtility
+import dk.rohdef.rfpath.permissions.Permission
+import dk.rohdef.rfpath.permissions.UserGroup
+import dk.rohdef.rfpath.utility.PathUtility
 import engine.*
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
@@ -31,7 +35,7 @@ fun main(cliArguments: Array<String>) = runBlocking {
         single { Configuration(get()) }
     }
 
-    val pathUtility = OkioPathUtility.createPathUtility()
+    val pathUtility = OkioPathUtility.createPathUtilityUnsafe()
     val systemModule = module {
         single { pathUtility }
         singleOf(::LinuxSystemUtilities) bind SystemUtilities::class
@@ -73,13 +77,23 @@ fun main(cliArguments: Array<String>) = runBlocking {
 private class RecipeApplication : KoinComponent {
     private val jobRunner: JobRunner by inject()
     private val configuration: Configuration by inject()
+    private val pathUtility: PathUtility by inject()
 
     suspend fun main() {
         // TODO fix ordered map
-        configuration.installation.jobs
-            .filter { configuration.jobsToRun.accept(it.key) }
-            .forEach {
-                jobRunner.run(it.value)
-            }
+        val w = pathUtility.workDirectory().getOrElse { TODO() }
+        val t = pathUtility.createTemporaryFile().getOrElse { TODO() }
+
+        println(w.absolutePath)
+
+        println(t.absolutePath)
+        t.write("Hello world")
+        t.addPermission(UserGroup.OWNER, Permission.EXECUTE)
+
+//        configuration.installation.jobs
+//            .filter { configuration.jobsToRun.accept(it.key) }
+//            .forEach {
+//                jobRunner.run(it.value)
+//            }
     }
 }

@@ -1,6 +1,7 @@
 plugins {
-    kotlin("multiplatform") version "1.7.21"
-    kotlin("plugin.serialization") version "1.7.21"
+    val kotlinVersion = "1.7.21"
+    kotlin("multiplatform") version kotlinVersion
+    kotlin("plugin.serialization") version kotlinVersion
 }
 
 group = "dk.rohdef.gourmet-api"
@@ -21,14 +22,17 @@ kotlin {
         else -> throw GradleException("Host OS is not supported in Kotlin/Native.")
     }
 
+    val kotestVersion = "5.4.2"
+    val kotlinLoggingVersion = "3.0.4"
+    val arrowKtVersion = "1.1.3"
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("io.arrow-kt:arrow-core:1.0.1")
+                implementation("io.arrow-kt:arrow-core:$arrowKtVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
 
-                implementation("io.github.microutils:kotlin-logging:2.1.23")
-                implementation("io.github.microutils:kotlin-logging-linuxx64:2.1.23")
+                implementation("io.github.microutils:kotlin-logging:$kotlinLoggingVersion")
+                implementation("io.github.microutils:kotlin-logging-linuxx64:$kotlinLoggingVersion")
 
                 implementation("org.jetbrains.kotlinx:kotlinx-cli:0.3.5")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0-RC")
@@ -39,8 +43,8 @@ kotlin {
                 implementation(kotlin("test"))
 
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.3-native-mt")
-                implementation("io.kotest:kotest-framework-engine:5.4.2")
-                implementation("io.kotest:kotest-assertions-core:5.4.2")
+                implementation("io.kotest:kotest-framework-engine:$kotestVersion")
+                implementation("io.kotest:kotest-assertions-core:$kotestVersion")
             }
         }
 

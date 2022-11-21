@@ -1,6 +1,7 @@
 plugins {
-    kotlin("multiplatform") version "1.7.21"
-    kotlin("plugin.serialization") version "1.7.21"
+    val kotlinVersion = "1.7.21"
+    kotlin("multiplatform") version kotlinVersion
+    kotlin("plugin.serialization") version kotlinVersion
 }
 
 group = "dk.rohdef.gourmet.pluhins.reboot"
@@ -21,16 +22,22 @@ kotlin {
         else -> throw GradleException("Host OS is not supported in Kotlin/Native.")
     }
 
+    val kotestVersion = "5.4.2"
+    // 2.5.4
+    val okioVersion = "3.2.0"
+    val kotlinLoggingVersion = "3.0.4"
+    val arrowKtVersion = "1.1.3"
+    val arrowKtVersionKotest = "1.2.5"
     sourceSets {
         val nativeMain by getting {
             dependencies {
                 implementation(project(":gourmet-api"))
 
-                implementation("io.arrow-kt:arrow-core:1.0.1")
+                implementation("io.arrow-kt:arrow-core:$arrowKtVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
 
-                implementation("io.github.microutils:kotlin-logging:2.1.23")
-                implementation("io.github.microutils:kotlin-logging-linuxx64:2.1.23")
+                implementation("io.github.microutils:kotlin-logging:$kotlinLoggingVersion")
+                implementation("io.github.microutils:kotlin-logging-linuxx64:$kotlinLoggingVersion")
 
                 implementation("io.ktor:ktor-network:2.0.3")
             }
@@ -40,8 +47,9 @@ kotlin {
                 implementation(kotlin("test"))
 
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.3-native-mt")
-                implementation("io.kotest:kotest-framework-engine:5.4.2")
-                implementation("io.kotest:kotest-assertions-core:5.4.2")
+                implementation("io.kotest:kotest-framework-engine:$kotestVersion")
+                implementation("io.kotest:kotest-assertions-core:$kotestVersion")
+                implementation("io.kotest.extensions:kotest-assertions-arrow:$arrowKtVersionKotest")
             }
         }
     }

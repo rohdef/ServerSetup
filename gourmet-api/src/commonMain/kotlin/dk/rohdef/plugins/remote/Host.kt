@@ -1,7 +1,7 @@
 package dk.rohdef.plugins.remote
 
 import arrow.core.Either
-import arrow.core.computations.either
+import arrow.core.continuations.either
 import configuration.ParameterError
 import configuration.Parameters
 
