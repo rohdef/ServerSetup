@@ -2,6 +2,8 @@ plugins {
     val kotlinVersion = "1.7.21"
     kotlin("multiplatform") version kotlinVersion
     kotlin("plugin.serialization") version kotlinVersion
+
+    id("io.kotest.multiplatform") version "5.5.4"
 }
 
 group = "dk.rohdef.gourmet-api"
@@ -22,7 +24,7 @@ kotlin {
         else -> throw GradleException("Host OS is not supported in Kotlin/Native.")
     }
 
-    val kotestVersion = "5.4.2"
+    val kotestVersion = "5.5.4"
     val kotlinLoggingVersion = "3.0.4"
     val arrowKtVersion = "1.1.3"
     sourceSets {

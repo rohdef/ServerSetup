@@ -6,23 +6,21 @@ data class Permissions(
     val other: Set<Permission>,
 ) {
     fun changePermissions(userGroup: UserGroup, permissions: Set<Permission>): Permissions {
-//        return when (userGroup) {
-//            UserGroup.OWNER -> this.copy(owner = permissions)
-//            UserGroup.GROUP -> this.copy(group = permissions)
-//            UserGroup.OTHER -> this.copy(other = permissions)
-//        }
-        TODO()
+        return when (userGroup) {
+            UserGroup.OWNER -> this.copy(owner = permissions)
+            UserGroup.GROUP -> this.copy(group = permissions)
+            UserGroup.OTHER -> this.copy(other = permissions)
+        }
     }
 
     fun addPermission(userGroup: UserGroup, permission: Permission): Permissions {
-        TODO()
-//        val updatedPermissions = when (userGroup) {
-//            UserGroup.OWNER -> owner + permission
-//            UserGroup.GROUP -> group + permission
-//            UserGroup.OTHER -> other + permission
-//        }
-//
-//        return changePermissions(userGroup, updatedPermissions)
+        val updatedPermissions = when (userGroup) {
+            UserGroup.OWNER -> owner + permission
+            UserGroup.GROUP -> group + permission
+            UserGroup.OTHER -> other + permission
+        }
+
+        return changePermissions(userGroup, updatedPermissions)
     }
 
     fun removePermission(userGroup: UserGroup, permission: Permission): Permissions {

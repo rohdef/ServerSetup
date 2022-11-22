@@ -42,7 +42,7 @@ sealed interface Path<T : Path<T>> {
     interface Directory : Path<Directory> {
         suspend fun list(): List<Path<*>>
 
-        suspend fun newFile(path: String): Either<NewFileError, File>
+        suspend fun newFile(fileName: String): Either<NewFileError, File>
     }
 
     interface File : Path<File> {

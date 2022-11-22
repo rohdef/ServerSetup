@@ -1,71 +1,390 @@
 package dk.rohdef.rfpath.permissions
 
-import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.datatest.withData
 import io.kotest.matchers.collections.shouldContainExactly
-import kotlin.test.Ignore
-import kotlin.test.Test
 
-class PermissionsTest {
-    private val emptyPermissions = Permissions(
+class PermissionsTest : FunSpec({
+    val emptyPermissions = Permissions(
         emptySet(),
         emptySet(),
         emptySet(),
     )
+    val defaultLinux = Permissions(
+        setOf(Permission.READ, Permission.WRITE),
+        setOf(Permission.READ, Permission.WRITE),
+        setOf(Permission.READ),
+    )
+    val allPermissions = Permissions(
+        Permission.values().toSet(),
+        Permission.values().toSet(),
+        Permission.values().toSet(),
+    )
 
-    @Test
-    @Ignore
-    fun `change owner permissions`() {
-        val read = emptyPermissions.changePermissions(UserGroup.OWNER, setOf())
-        val write = emptyPermissions.changePermissions(UserGroup.OWNER, setOf())
-        val execute = emptyPermissions.changePermissions(UserGroup.OWNER, setOf())
-        val readWrite = emptyPermissions.changePermissions(UserGroup.OWNER, setOf())
-        val readExecute = emptyPermissions.changePermissions(UserGroup.OWNER, setOf())
-        val writeExecute = emptyPermissions.changePermissions(UserGroup.OWNER, setOf())
-        val readWriteExecute = emptyPermissions.changePermissions(UserGroup.OWNER, setOf())
+    val defaultPermissions = setOf(
+        emptyPermissions,
+        allPermissions,
+        defaultLinux
+    )
+
+    fun testPermissions(
+        permissions: Permissions,
+        owner: Set<Permission>,
+        group: Set<Permission>,
+        other: Set<Permission>,
+    ) {
+        permissions.owner
+            .shouldContainExactly(owner)
+        permissions.group
+            .shouldContainExactly(group)
+        permissions.other
+            .shouldContainExactly(other)
     }
 
-    @Test
-    @Ignore
-    fun `add read permission`() {
-        val owner = emptyPermissions.addPermission(UserGroup.OWNER, Permission.READ)
-        val group = emptyPermissions.addPermission(UserGroup.GROUP, Permission.READ)
-        val other = emptyPermissions.addPermission(UserGroup.OTHER, Permission.READ)
+    context("Change permissions") {
+        val permissionCombinations = sequenceOf(
+            setOf(Permission.READ),
+            setOf(Permission.WRITE),
+            setOf(Permission.EXECUTE),
+            setOf(Permission.READ, Permission.WRITE),
+            setOf(Permission.READ, Permission.EXECUTE),
+            setOf(Permission.WRITE, Permission.EXECUTE),
+            setOf(Permission.READ, Permission.WRITE, Permission.EXECUTE),
+        )
 
-        owner.owner.shouldContainExactly(setOf(Permission.READ))
-        owner.group.shouldBeEmpty()
-        owner.other.shouldBeEmpty()
+        val testData = defaultPermissions.flatMap { perms ->
+            permissionCombinations.toSet().map { perms to it }
+        }.asSequence()
 
-        group.owner.shouldBeEmpty()
-        group.group.shouldContainExactly(setOf(Permission.READ))
-        group.other.shouldBeEmpty()
+        context("for owner") {
+            withData(testData) {
+                val testPermissions = it.first
+                val ownerPermissions = it.second
+                val permissions = testPermissions.changePermissions(UserGroup.OWNER, ownerPermissions)
 
-        other.owner.shouldBeEmpty()
-        other.group.shouldBeEmpty()
-        other.other.shouldContainExactly(setOf(Permission.READ))
+                testPermissions(
+                    permissions,
+                    ownerPermissions,
+                    testPermissions.group,
+                    testPermissions.other,
+                )
+            }
+        }
+
+        context("for group") {
+            withData(testData) {
+                val testPermissions = it.first
+                val groupPermissions = it.second
+                val permissions = testPermissions.changePermissions(UserGroup.GROUP, groupPermissions)
+
+                testPermissions(
+                    permissions,
+                    testPermissions.owner,
+                    groupPermissions,
+                    testPermissions.other,
+                )
+            }
+        }
+
+        context("for others") {
+            withData(testData) {
+                val testPermissions = it.first
+                val otherPermissions = it.second
+                val permissions = testPermissions.changePermissions(UserGroup.OTHER, otherPermissions)
+
+                testPermissions(
+                    permissions,
+                    testPermissions.owner,
+                    testPermissions.group,
+                    otherPermissions,
+                )
+            }
+        }
     }
 
-    @Test
-    @Ignore
-    fun `add write permission`() {
-        val owner = emptyPermissions.addPermission(UserGroup.OWNER, Permission.WRITE)
-        val group = emptyPermissions.addPermission(UserGroup.GROUP, Permission.WRITE)
-        val other = emptyPermissions.addPermission(UserGroup.OTHER, Permission.WRITE)
+    context("Add permissions") {
+        data class TestCase(
+            val permissions: Permissions,
+            val permissionToAdd: Permission,
+            val expected: Set<Permission>
+        )
 
-        owner.owner.shouldContainExactly(setOf(Permission.WRITE))
-        owner.group.shouldBeEmpty()
-        owner.other.shouldBeEmpty()
+        context("for owner") {
+            val testData = sequenceOf(
+                TestCase(
+                    emptyPermissions, Permission.READ, setOf(Permission.READ)
+                ),
+                TestCase(
+                    emptyPermissions, Permission.WRITE, setOf(Permission.WRITE)
+                ),
+                TestCase(
+                    emptyPermissions, Permission.EXECUTE, setOf(Permission.EXECUTE)
+                ),
 
-        group.owner.shouldBeEmpty()
-        group.group.shouldContainExactly(setOf(Permission.WRITE))
-        group.other.shouldBeEmpty()
+                TestCase(
+                    defaultLinux, Permission.READ, setOf(Permission.READ, Permission.WRITE)
+                ),
+                TestCase(
+                    defaultLinux, Permission.WRITE, setOf(Permission.READ, Permission.WRITE)
+                ),
+                TestCase(
+                    defaultLinux, Permission.EXECUTE, setOf(Permission.READ, Permission.WRITE, Permission.EXECUTE)
+                ),
 
-        other.owner.shouldBeEmpty()
-        other.group.shouldBeEmpty()
-        other.other.shouldContainExactly(setOf(Permission.WRITE))
+                TestCase(
+                    allPermissions, Permission.READ, setOf(Permission.READ, Permission.WRITE, Permission.EXECUTE)
+                ),
+                TestCase(
+                    allPermissions, Permission.WRITE, setOf(Permission.READ, Permission.WRITE, Permission.EXECUTE)
+                ),
+                TestCase(
+                    allPermissions, Permission.EXECUTE, setOf(Permission.READ, Permission.WRITE, Permission.EXECUTE)
+                ),
+            )
+
+            withData(testData) {
+                val permissions = it.permissions.addPermission(UserGroup.OWNER, it.permissionToAdd)
+
+                testPermissions(
+                    permissions,
+                    it.expected,
+                    it.permissions.group,
+                    it.permissions.other,
+                )
+            }
+        }
+
+        context("for group") {
+            val testData = sequenceOf(
+                TestCase(
+                    emptyPermissions, Permission.READ, setOf(Permission.READ)
+                ),
+                TestCase(
+                    emptyPermissions, Permission.WRITE, setOf(Permission.WRITE)
+                ),
+                TestCase(
+                    emptyPermissions, Permission.EXECUTE, setOf(Permission.EXECUTE)
+                ),
+
+                TestCase(
+                    defaultLinux, Permission.READ, setOf(Permission.READ, Permission.WRITE)
+                ),
+                TestCase(
+                    defaultLinux, Permission.WRITE, setOf(Permission.READ, Permission.WRITE)
+                ),
+                TestCase(
+                    defaultLinux, Permission.EXECUTE, setOf(Permission.READ, Permission.WRITE, Permission.EXECUTE)
+                ),
+
+                TestCase(
+                    allPermissions, Permission.READ, setOf(Permission.READ, Permission.WRITE, Permission.EXECUTE)
+                ),
+                TestCase(
+                    allPermissions, Permission.WRITE, setOf(Permission.READ, Permission.WRITE, Permission.EXECUTE)
+                ),
+                TestCase(
+                    allPermissions, Permission.EXECUTE, setOf(Permission.READ, Permission.WRITE, Permission.EXECUTE)
+                ),
+            )
+
+            withData(testData) {
+                val permissions = it.permissions.addPermission(UserGroup.GROUP, it.permissionToAdd)
+
+                testPermissions(
+                    permissions,
+                    it.permissions.owner,
+                    it.expected,
+                    it.permissions.other,
+                )
+            }
+        }
+
+        context("for other") {
+            val testData = sequenceOf(
+                TestCase(
+                    emptyPermissions, Permission.READ, setOf(Permission.READ)
+                ),
+                TestCase(
+                    emptyPermissions, Permission.WRITE, setOf(Permission.WRITE)
+                ),
+                TestCase(
+                    emptyPermissions, Permission.EXECUTE, setOf(Permission.EXECUTE)
+                ),
+
+                TestCase(
+                    defaultLinux, Permission.READ, setOf(Permission.READ)
+                ),
+                TestCase(
+                    defaultLinux, Permission.WRITE, setOf(Permission.READ, Permission.WRITE)
+                ),
+                TestCase(
+                    defaultLinux, Permission.EXECUTE, setOf(Permission.READ, Permission.EXECUTE)
+                ),
+
+                TestCase(
+                    allPermissions, Permission.READ, setOf(Permission.READ, Permission.WRITE, Permission.EXECUTE)
+                ),
+                TestCase(
+                    allPermissions, Permission.WRITE, setOf(Permission.READ, Permission.WRITE, Permission.EXECUTE)
+                ),
+                TestCase(
+                    allPermissions, Permission.EXECUTE, setOf(Permission.READ, Permission.WRITE, Permission.EXECUTE)
+                ),
+            )
+
+            withData(testData) {
+                val permissions = it.permissions.addPermission(UserGroup.OTHER, it.permissionToAdd)
+
+                testPermissions(
+                    permissions,
+                    it.permissions.owner,
+                    it.permissions.group,
+                    it.expected,
+                )
+            }
+        }
     }
 
-    @Test
-    @Ignore
-    fun `remove simplistic`() {
+    context("Remove permissions") {
+        data class TestCase(
+            val permissions: Permissions,
+            val permissionToRemove: Permission,
+            val expected: Set<Permission>
+        )
+
+        context("for owner") {
+            val testData = sequenceOf(
+                TestCase(
+                    emptyPermissions, Permission.READ, setOf()
+                ),
+                TestCase(
+                    emptyPermissions, Permission.WRITE, setOf()
+                ),
+                TestCase(
+                    emptyPermissions, Permission.EXECUTE, setOf()
+                ),
+
+                TestCase(
+                    defaultLinux, Permission.READ, setOf(Permission.WRITE)
+                ),
+                TestCase(
+                    defaultLinux, Permission.WRITE, setOf(Permission.READ)
+                ),
+                TestCase(
+                    defaultLinux, Permission.EXECUTE, setOf(Permission.READ, Permission.WRITE)
+                ),
+
+                TestCase(
+                    allPermissions, Permission.READ, setOf(Permission.WRITE, Permission.EXECUTE)
+                ),
+                TestCase(
+                    allPermissions, Permission.WRITE, setOf(Permission.READ, Permission.EXECUTE)
+                ),
+                TestCase(
+                    allPermissions, Permission.EXECUTE, setOf(Permission.READ, Permission.WRITE)
+                ),
+            )
+
+            withData(testData) {
+                val permissions = it.permissions.removePermission(UserGroup.OWNER, it.permissionToRemove)
+
+                testPermissions(
+                    permissions,
+                    it.expected,
+                    it.permissions.group,
+                    it.permissions.other,
+                )
+            }
+        }
+
+        context("for group") {
+            val testData = sequenceOf(
+                TestCase(
+                    emptyPermissions, Permission.READ, setOf()
+                ),
+                TestCase(
+                    emptyPermissions, Permission.WRITE, setOf()
+                ),
+                TestCase(
+                    emptyPermissions, Permission.EXECUTE, setOf()
+                ),
+
+                TestCase(
+                    defaultLinux, Permission.READ, setOf(Permission.WRITE)
+                ),
+                TestCase(
+                    defaultLinux, Permission.WRITE, setOf(Permission.READ)
+                ),
+                TestCase(
+                    defaultLinux, Permission.EXECUTE, setOf(Permission.READ, Permission.WRITE)
+                ),
+
+                TestCase(
+                    allPermissions, Permission.READ, setOf(Permission.WRITE, Permission.EXECUTE)
+                ),
+                TestCase(
+                    allPermissions, Permission.WRITE, setOf(Permission.READ, Permission.EXECUTE)
+                ),
+                TestCase(
+                    allPermissions, Permission.EXECUTE, setOf(Permission.READ, Permission.WRITE)
+                ),
+            )
+
+            withData(testData) {
+                val permissions = it.permissions.removePermission(UserGroup.GROUP, it.permissionToRemove)
+
+                testPermissions(
+                    permissions,
+                    it.permissions.owner,
+                    it.expected,
+                    it.permissions.other,
+                )
+            }
+        }
+
+        context("for other") {
+            val testData = sequenceOf(
+                TestCase(
+                    emptyPermissions, Permission.READ, setOf()
+                ),
+                TestCase(
+                    emptyPermissions, Permission.WRITE, setOf()
+                ),
+                TestCase(
+                    emptyPermissions, Permission.EXECUTE, setOf()
+                ),
+
+                TestCase(
+                    defaultLinux, Permission.READ, setOf()
+                ),
+                TestCase(
+                    defaultLinux, Permission.WRITE, setOf(Permission.READ)
+                ),
+                TestCase(
+                    defaultLinux, Permission.EXECUTE, setOf(Permission.READ)
+                ),
+
+                TestCase(
+                    allPermissions, Permission.READ, setOf(Permission.WRITE, Permission.EXECUTE)
+                ),
+                TestCase(
+                    allPermissions, Permission.WRITE, setOf(Permission.READ, Permission.EXECUTE)
+                ),
+                TestCase(
+                    allPermissions, Permission.EXECUTE, setOf(Permission.READ, Permission.WRITE)
+                ),
+            )
+
+            withData(testData) {
+                val permissions = it.permissions.removePermission(UserGroup.OTHER, it.permissionToRemove)
+
+                testPermissions(
+                    permissions,
+                    it.permissions.owner,
+                    it.permissions.group,
+                    it.expected,
+                )
+            }
+        }
     }
-}
+})

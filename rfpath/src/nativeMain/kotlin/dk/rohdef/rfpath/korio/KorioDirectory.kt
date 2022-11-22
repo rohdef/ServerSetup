@@ -39,11 +39,11 @@ class KorioDirectory private constructor(
             }
     }
 
-    override suspend fun newFile(path: String): Either<NewFileError, Path.File> {
+    override suspend fun newFile(fileName: String): Either<NewFileError, Path.File> {
         return either {
-            val filePath = vfs.get(path)
+            val filePath = vfs.get(fileName)
             if (filePath.exists()) {
-                Either.Left(NewFileError.FileExists(path))
+                Either.Left(NewFileError.FileExists(fileName))
                     .bind<Path.File>()
             }
 
