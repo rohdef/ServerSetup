@@ -46,9 +46,12 @@ class InstallTest {
 //        val execution6 = system.executions[5]
 
         // clean system
-        execution1.command.shouldContain(""""ssh" "$username@$hostname" "-p" "$port" "rm \"-rf\" \"$dataPath\""""")
-        execution2.command.shouldContain(""""ssh" "$username@$hostname" "-p" "$port" "rm \"-rf\" \"$applicationPath\""""")
-        execution3.command.shouldContain(""""ssh" "$username@$hostname" "-p" "$port" "rm \"-rf\" \"$askpassPath\""""")
+        execution1.command
+            .shouldContain(""""ssh" "$username@$hostname" "-p" "$port" "rm \"-rf\" \"$dataPath\""""")
+        execution2.command
+            .shouldContain(""""ssh" "$username@$hostname" "-p" "$port" "rm \"-rf\" \"$applicationPath\""""")
+        execution3.command
+            .shouldContain(""""ssh" "$username@$hostname" "-p" "$port" "rm \"-rf\" \"$askpassPath\""""")
 
 //        // create askpass
 //        // TODO: 16/09/2022 rohdef - read file

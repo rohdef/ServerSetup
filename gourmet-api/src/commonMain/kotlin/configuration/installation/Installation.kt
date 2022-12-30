@@ -7,7 +7,6 @@ import kotlinx.serialization.encoding.Encoder
 
 @kotlinx.serialization.Serializable(with = InstallationSerializer::class)
 data class Installation(
-    // TODO change to ordered map, current implementation is dangerous
     val jobs: Map<JobId, Job>,
 )
 

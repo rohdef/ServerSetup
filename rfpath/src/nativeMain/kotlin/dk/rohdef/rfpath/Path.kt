@@ -40,7 +40,7 @@ sealed interface Path<T : Path<T>> {
     suspend fun currentPermission(): Permissions
 
     interface Directory : Path<Directory> {
-        suspend fun list(): List<Path<*>>
+        suspend fun list(): Either<PathError, List<Path<*>>>
 
         suspend fun newFile(fileName: String): Either<NewFileError, File>
     }

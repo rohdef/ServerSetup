@@ -3,13 +3,11 @@ package dk.rohdef.rfpath.korio
 import arrow.core.Either
 import arrow.core.continuations.either
 import arrow.core.right
+import arrow.core.traverse
 import com.soywiz.korio.file.VfsFile
 import com.soywiz.korio.file.getUnixPermission
 import com.soywiz.korio.file.setUnixPermission
-import dk.rohdef.rfpath.DirectoryError
-import dk.rohdef.rfpath.DirectoryInstance
-import dk.rohdef.rfpath.NewFileError
-import dk.rohdef.rfpath.Path
+import dk.rohdef.rfpath.*
 import dk.rohdef.rfpath.permissions.Permissions
 
 class KorioDirectory private constructor(
@@ -27,13 +25,13 @@ class KorioDirectory private constructor(
         return vfs.getUnixPermission().toPermissions()
     }
 
-    override suspend fun list(): List<Path<*>> {
+    override suspend fun list(): Either<PathError, List<Path<*>>> {
         return vfs.listSimple()
             // TODO: 29/10/2022 rohdef - is there a better way to deal with type safety?
-            .map {
+            .traverse {
                 when {
-                    it.isDirectory() -> directoryUnsafe(it)
-                    it.isFile() -> KorioFile.fileUnsafe(it)
+                    it.isDirectory() -> directory(it)
+                    it.isFile() -> KorioFile.file(it)
                     else -> throw IllegalArgumentException("Only files and directories should be possible`")
                 }
             }
