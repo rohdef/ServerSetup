@@ -10,8 +10,6 @@ import com.soywiz.korio.file.getUnixPermission
 import com.soywiz.korio.file.setUnixPermission
 import com.soywiz.korio.file.std.LocalVfsNative
 import dk.rohdef.rfpath.*
-import dk.rohdef.rfpath.korio.toPermissions
-import dk.rohdef.rfpath.korio.toVfsPermissions
 import dk.rohdef.rfpath.permissions.Permissions
 import okio.FileSystem
 

@@ -1,4 +1,4 @@
-package dk.rohdef.rfpath.korio
+package dk.rohdef.rfpath.okio
 
 import com.soywiz.korio.file.Vfs
 import dk.rohdef.rfpath.permissions.Permissions
