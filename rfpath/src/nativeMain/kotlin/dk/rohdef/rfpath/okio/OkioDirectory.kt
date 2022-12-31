@@ -57,10 +57,23 @@ class OkioDirectory private constructor(
         }
     }
 
+    override suspend fun resolve(subpath: String): Either<PathError, Path<*>> {
+        val resolvedPath = path.resolve(subpath)
+
+        val metadata = fileSystem.metadataOrNull(resolvedPath)
+
+        return if (metadata == null) {
+            DirectoryInstance.EntityIsNonExisting(resolvedPath.toString()).left()
+        } else if (metadata.isDirectory) {
+            directory(fileSystem, resolvedPath)
+        } else {
+            OkioFile.file(fileSystem, resolvedPath)
+        }
+    }
+
     override fun toString(): String {
         return "OkioDirectory(path=$path)"
     }
-
 
     companion object {
         fun directory(fileSystem: FileSystem, path: okio.Path): Either<DirectoryInstance, Path.Directory> {

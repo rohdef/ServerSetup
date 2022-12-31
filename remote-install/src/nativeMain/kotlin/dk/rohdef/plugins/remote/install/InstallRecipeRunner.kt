@@ -35,20 +35,37 @@ class InstallRecipeRunner(
 
             setupGourmetRunner(configuration)
                 .bind()
-
-            logger.info { "data" }
-            val workDirectory = pathUtility.workDirectory()
-                .mapLeft { ApplicationDirectoryUnavailable.fromDirectoryInstance(it) }
+            setupGourmetData(configuration)
                 .bind()
-            val grd = workDirectory
-
-//        val resultD = system.executeSshCommand(
-//            host,
-//            "rm", "-rf", "/tmp/gourmet-data"
-//        )
 
             emptyMap()
         }
+    }
+
+    private suspend fun setupGourmetData(
+        configuration: Configuration,
+    ): Either<InstallError, Unit> = either {
+        logger.info { "Copying remote recipes" }
+        val workDirectory = pathUtility.workDirectory()
+            .mapLeft { ApplicationDirectoryUnavailable.fromDirectoryInstance(it) }
+            .bind()
+        val remoteRecipesDirectory = workDirectory
+            .resolve("recipes/remote")
+            // TODO: 30/12/2022 rohdef - definitely better error handling
+            .mapLeft { InstallError.CannotReadGourmetRunner(workDirectory) }
+            .bind()
+
+        val homeDirectory = "/home/${configuration.host.username}"
+        val dataPath = "${homeDirectory}/gourmet-data/"
+
+        val remoteRecipesList = when (remoteRecipesDirectory) {
+            is Path.Directory -> remoteRecipesDirectory
+            is Path.File -> shift(InstallError.CannotReadGourmetRunner(workDirectory))
+        }.list()
+            // TODO: 30/12/2022 rohdef - definitely better error handling
+            .mapLeft { InstallError.CannotReadGourmetRunner(workDirectory) }
+            .bind()
+        setupRemoteDirectory(configuration, remoteRecipesList, dataPath)
     }
 
     private suspend fun setupGourmetRunner(
@@ -58,8 +75,8 @@ class InstallRecipeRunner(
             .mapLeft { ApplicationDirectoryUnavailable.fromDirectoryInstance(it) }
             .bind()
 
-        val homeDirectory = "/home/${configuration.host.username}/"
-        val runnerPath = "${homeDirectory}gourmet-runner/"
+        val homeDirectory = "/home/${configuration.host.username}"
+        val runnerPath = "${homeDirectory}/gourmet-runner/"
 
         logger.info { "Gourmet sources" }
         val gourmetRunnerSources = applicationDirectory.list()

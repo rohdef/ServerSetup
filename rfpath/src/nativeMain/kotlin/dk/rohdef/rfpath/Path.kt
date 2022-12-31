@@ -43,6 +43,8 @@ sealed interface Path<T : Path<T>> {
         suspend fun list(): Either<PathError, List<Path<*>>>
 
         suspend fun newFile(fileName: String): Either<NewFileError, File>
+
+        suspend fun resolve(subpath: String): Either<PathError, Path<*>>
     }
 
     interface File : Path<File> {

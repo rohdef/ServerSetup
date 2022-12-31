@@ -53,6 +53,10 @@ class KorioDirectory private constructor(
         }
     }
 
+    override suspend fun resolve(subpath: String): Either<PathError, Path<*>> {
+        TODO("not implemented")
+    }
+
     companion object {
         suspend fun directory(vfsFile: VfsFile): Either<DirectoryInstance, Path.Directory> {
             return if (!vfsFile.isDirectory()) {
