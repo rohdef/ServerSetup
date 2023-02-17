@@ -282,7 +282,7 @@ class ParametersTest {
 
         @Test
         fun `map values`() {
-            val map = inputMap.mapValue("permissions")
+            val map = inputMap.map("permissions")
 
             map.shouldBe(
                 Either.Right(
@@ -298,7 +298,7 @@ class ParametersTest {
 
         @Test
         fun `missing map`() {
-            val map = inputMap.mapValue("permissions windows")
+            val map = inputMap.map("permissions windows")
 
             map.shouldBe(
                 Either.Right(Parameters.Map())
@@ -307,7 +307,7 @@ class ParametersTest {
 
         @Test
         fun `type is not map`() {
-            val map = inputMap.mapValue("permissions numbered")
+            val map = inputMap.map("permissions numbered")
 
             map.shouldBe(
                 Either.Left(

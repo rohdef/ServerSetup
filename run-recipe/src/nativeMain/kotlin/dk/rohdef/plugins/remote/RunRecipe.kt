@@ -13,6 +13,9 @@ class RunRecipe : StepAction {
     override suspend fun run(
         parameters: Parameters.Map,
     ): Either<EngineError, EnvironmentUpdates> {
+
+
+        val cmd = "export SUDO_ASKPASS=/home/{username}/{self._scriptPath}/ask-pass.py; sudo --askpass ~/{self._scriptPath}/declarative.py -c ~/{script}.yaml {jobCommand}"
         TODO("not implemented")
     }
 }

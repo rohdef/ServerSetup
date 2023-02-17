@@ -1,7 +1,6 @@
 package configuration
 
-import arrow.core.Either
-import arrow.core.flatMap
+import arrow.core.*
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
@@ -20,12 +19,20 @@ sealed interface Parameters {
     @kotlinx.serialization.Serializable(with = ListParameterSerializer::class)
     data class List(val value: kotlin.collections.List<Parameters>) : Parameters {
         constructor(vararg parameters: Parameters) : this(listOf(*parameters))
+
+        fun stringValues(): Either<ParameterError, kotlin.collections.List<kotlin.String>> {
+            return value.traverse {
+                when (it) {
+                    is String -> it.value.right()
+                    else -> ParameterError.WrongType("", String::class, it::class).left()
+                }
+
+            }
+        }
     }
 
     @kotlinx.serialization.Serializable(with = MapParameterSerializer::class)
     data class Map(val value: kotlin.collections.Map<kotlin.String, Parameters>) : Parameters {
-        val keys: Set<kotlin.String> = value.keys
-
         fun integerValue(key: kotlin.String): Either<ParameterError, Int> {
             return getValue(key, Integer::class)
                 .map { it.value }
@@ -79,7 +86,11 @@ sealed interface Parameters {
                 .map { it.value }
         }
 
-        fun mapValue(key: kotlin.String): Either<ParameterError, Map> {
+        fun list(key: kotlin.String): Either<ParameterError, List> {
+            return getValue(key, List(), List::class)
+        }
+
+        fun map(key: kotlin.String): Either<ParameterError, Map> {
             return getValue(key, Map(), Map::class)
         }
 
@@ -100,6 +111,7 @@ sealed interface Parameters {
         ): Either<ParameterError, T> {
             val parameter = value[key]
 
+            @Suppress("UNCHECKED_CAST")
             return when {
                 kClass.isInstance(parameter) -> Either.Right(parameter as T)
                 parameter == null -> Either.Right(default)

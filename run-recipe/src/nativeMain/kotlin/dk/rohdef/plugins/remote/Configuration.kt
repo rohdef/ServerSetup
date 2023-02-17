@@ -1,23 +1,28 @@
-package dk.rohdef.plugins.remote.install
+package dk.rohdef.plugins.remote
 
 import arrow.core.Either
 import arrow.core.continuations.either
 import arrow.core.flatMap
+import arrow.core.right
 import configuration.ParameterError
 import configuration.Parameters
-import dk.rohdef.plugins.remote.Host
 
 data class Configuration(
-    val host: Host,
+    val script: String,
+    val jobs: List<String>,
 ) {
     companion object {
         suspend fun create(parameters: Parameters.Map): Either<ParameterError, Configuration> {
             return either {
-                val host = parameters.map("host")
-                    .flatMap { Host.create(it) }
+                val script = parameters.stringValue("script")
+                    .bind()
+                val jobs = parameters.list("jobs")
+                    .flatMap { it.stringValues() }
+                    .bind()
 
                 Configuration(
-                    host.bind()
+                    script,
+                    jobs,
                 )
             }
         }

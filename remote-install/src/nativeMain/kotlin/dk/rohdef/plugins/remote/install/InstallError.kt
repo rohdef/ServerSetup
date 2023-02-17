@@ -27,8 +27,6 @@ sealed interface ApplicationDirectoryUnavailable : InstallError {
                 is DirectoryInstance.EntityIsAFile -> TODO()
                 is DirectoryInstance.EntityIsNonExisting -> TODO()
             }
-
-            TODO()
         }
     }
 }

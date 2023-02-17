@@ -15,7 +15,7 @@ data class Configuration(
     companion object {
         suspend fun create(parameters: Parameters.Map): Either<ParameterError, Configuration> {
             return either {
-                val host = parameters.mapValue("host")
+                val host = parameters.map("host")
                     .flatMap { Host.create(it) }
 
                 val wait = parameters.enumValue("waitForReboot", Reboot.WaitForReboot.DO_NOT_WAIT)
