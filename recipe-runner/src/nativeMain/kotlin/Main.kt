@@ -1,84 +1,76 @@
-import configuration.Arguments
-import configuration.Configuration
-import dk.rohdef.plugins.StepAction
-import dk.rohdef.plugins.debug.Debug
-import dk.rohdef.plugins.local.UpdateEnvironment
-import dk.rohdef.plugins.remote.RunRecipe
-import dk.rohdef.plugins.remote.install.InstallRecipeRunner
-import dk.rohdef.plugins.remote.reboot.KtorSockets
-import dk.rohdef.plugins.remote.reboot.Reboot
-import dk.rohdef.plugins.remote.reboot.SocketFactory
-import dk.rohdef.rfpath.okio.OkioPathUtility
-import engine.*
+import arrow.core.Either
+import arrow.core.continuations.either
+import arrow.core.left
+import arrow.core.right
+import io.ktor.util.*
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
-import org.koin.core.context.startKoin
-import org.koin.core.module.dsl.singleOf
-import org.koin.dsl.bind
-import org.koin.dsl.module
-import utilities.LinuxSystemUtilities
-import utilities.SystemUtilities
+import kotlin.reflect.KSuspendFunction1
 
 private val logger = KotlinLogging.logger {}
 
-fun main(cliArguments: Array<String>) = runBlocking {
-    logger.info { "Creating dishes on the menu" }
+fun main(cliArguments: Array<String>) {
+    val commandMapping = mapOf(
+        Command.RUN to ::runRecipe,
+        Command.GENERATE_SCRIPT to ::generateScript
+    )
 
-    val configurationModule = module {
-        single { Arguments.parseArguments(cliArguments) }
-        single { Configuration(get()) }
-    }
-
-    val pathUtility = OkioPathUtility.createPathUtilityUnsafe()
-    val systemModule = module {
-        single { pathUtility }
-        singleOf(::LinuxSystemUtilities) bind SystemUtilities::class
-        // TODO exterminate if korio can replace - better interface ;)
-        singleOf(::KtorSockets) bind SocketFactory::class
-    }
-
-    val runnersModule = module {
-        singleOf(::Debug) bind StepAction::class
-        singleOf(::InstallRecipeRunner) bind StepAction::class
-        singleOf(::Reboot) bind StepAction::class
-        singleOf(::RunRecipe) bind StepAction::class
-        singleOf(::UpdateEnvironment) bind StepAction::class
-
-        single { Runners(getAll()) }
-    }
-
-    val runnerModule = module {
-        singleOf(::VariableParser)
-        singleOf(::StepRunnerImplementation) bind StepRunner::class
-        singleOf(::JobRunnerImplementation) bind JobRunner::class
-    }
-
-    startKoin {
-        modules(
-            configurationModule,
-            systemModule,
-            runnersModule,
-            runnerModule,
-        )
-    }
-
-    val application = RecipeApplication()
-    application.main()
-
-    logger.info { "The menu is ready and served - enjoy :)" }
+    actualMain(commandMapping, cliArguments)
 }
 
-private class RecipeApplication : KoinComponent {
-    private val jobRunner: JobRunner by inject()
-    private val configuration: Configuration by inject()
+typealias Executable = KSuspendFunction1<Array<String>, Unit>
+fun actualMain(
+    commands: Map<Command, Executable>,
+    cliArguments: Array<String>
+) = runBlocking {
+    either {
+        val restOfArguments = cliArguments
+            .drop(1)
+            .toTypedArray()
 
-    suspend fun main() {
-        configuration
-            .installation
-            .jobs
-            .filter { configuration.jobsToRun.accept(it.key) }
-            .forEach { jobRunner.run(it.value) }
+        val commandsWithDefault = commands
+            .mapValues { it.value.right() }
+            .withDefault { ExecutionError.MissingCommand(it).left() }
+
+        val firstArgument = cliArguments
+            .firstOrNull()
+            .let { it?.right() ?: ExecutionError.NoArguments.left() }
+            .map { it.toLowerCasePreservingASCIIRules() }
+            .bind()
+
+        val argumentNomalized = firstArgument
+            .toUpperCasePreservingASCIIRules()
+            .replace("-", "_")
+
+        val command = enumValueOf<Command>(argumentNomalized)
+            .bind()
+        val subProgram = commandsWithDefault.getValue(command)
+            .bind()
+        subProgram(restOfArguments)
     }
+}
+
+/**
+ * Returns an enum entry with the specified name or `null` if no such entry was found.
+ */
+inline fun <reified T : Enum<T>> enumValueOf(name: String): Either<ExecutionError.UnknownArgument, T> {
+    return enumValues<T>().find { it.name == name }
+        ?.right()
+        ?: ExecutionError.UnknownArgument.left()
+}
+
+sealed interface ExecutionError {
+    object NoArguments
+    object UnknownArgument
+
+    data class MissingCommand(val command: Command)
+}
+
+enum class Command {
+    RUN,
+    GENERATE_SCRIPT
+}
+
+suspend fun generateScript(cliArguments: Array<String>) {
+    logger.info { "Running the generate script script" }
 }
