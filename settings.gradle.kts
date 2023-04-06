@@ -3,7 +3,6 @@ rootProject.name = "gourmet"
 include(
     "gourmet-api",
     "gourmet-api-test",
-    "rfpath",
 
     "debug",
     "reboot",
